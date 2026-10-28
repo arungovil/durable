@@ -1,0 +1,10 @@
+{
+  "name": "durable-cell",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [{ "name": "CELL", "class_name": "Cell" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Cell"] }]
+}

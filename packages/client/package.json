@@ -1,0 +1,14 @@
+{
+  "name": "@durable/client",
+  "private": true,
+  "type": "module",
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "devDependencies": {
+    "@durable/protocol": "workspace:*",
+    "@earendil-works/pi-coding-agent": "^1.4.0"
+  }
+}

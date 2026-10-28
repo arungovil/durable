@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.celld/
+.wrangler/
+.dev.vars
+.env
+.env.local

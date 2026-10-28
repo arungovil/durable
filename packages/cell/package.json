@@ -1,0 +1,17 @@
+{
+  "name": "@durable/cell",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "celld dev ."
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261028.1"
+  },
+  "dependencies": {
+    "@durable/protocol": "workspace:*",
+    "@earendil-works/chord": "1.4.0",
+    "@earendil-works/pi-ai": "1.4.0",
+    "@earendil-works/pi-durable": "1.4.0"
+  }
+}
