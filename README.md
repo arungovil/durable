@@ -24,3 +24,5 @@ pnpm check
 pnpm dev:cell
 pnpm dev:server
 ```
+
+celld dev listens on `http://127.0.0.1:9876`. Setup for each process: `docs/CELL.md`, `docs/SERVER.md`.

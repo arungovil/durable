@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node src/index.ts"
+    "dev": "node --env-file-if-exists=.env src/index.ts"
   },
   "dependencies": {
     "@durable/protocol": "workspace:*",

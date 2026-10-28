@@ -1,0 +1,6 @@
+# Copy to .dev.vars and fill in. SERVER_TOKEN and SERVER_CWD must match the Server's TOKEN and WORKSPACE.
+SERVER_URL=http://127.0.0.1:8788
+SERVER_TOKEN=
+SERVER_CWD=
+DEEPSEEK_API_KEY=
+# MODEL=deepseek-flash

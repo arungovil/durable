@@ -8,6 +8,11 @@
     "rootDir": "../..",
     "types": ["node"]
   },
-  "include": ["*.ts", "../src/http-env.ts", "../../server/src"],
+  "include": [
+    "*.ts",
+    "../src/http-env.ts",
+    "../src/harness.ts",
+    "../../server/src"
+  ],
   "references": [{ "path": "../../protocol" }]
 }

@@ -2,14 +2,25 @@ import { DurableObject } from "cloudflare:workers";
 import type { CellMessage, ClientMessage } from "@durable/protocol";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
 import { createModels } from "@earendil-works/pi-ai";
-import { createRegistry, Harness, type Wake } from "@earendil-works/pi-durable";
+import { deepseekProvider } from "@earendil-works/pi-ai/providers/deepseek";
+import { Harness, type Wake } from "@earendil-works/pi-durable";
 import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/storage/sqlite/cloudflare";
+
+import { harnessOptions } from "./harness.ts";
 
 const context = BACKGROUND_CONTEXT;
 const HEARTBEAT_MS = 60_000;
 
 interface Env {
   CELL: DurableObjectNamespace<Cell>;
+  /** Base URL of the Server, no trailing slash. */
+  SERVER_URL: string;
+  SERVER_TOKEN: string;
+  /** Absolute workspace path on the Server. */
+  SERVER_CWD: string;
+  DEEPSEEK_API_KEY: string;
+  /** pi-ai DeepSeek model id; defaults to `deepseek-flash`. */
+  MODEL?: string;
 }
 
 // Layer 2: one Cell per shared session. Hosts the pi-durable Harness on this object's SQLite storage.
@@ -24,12 +35,18 @@ export class Cell extends DurableObject<Env> {
       const current = await ctx.storage.getAlarm();
       if (current === null || current > fallback)
         await ctx.storage.setAlarm(fallback);
-      const models = createModels(); // TODO(step 4): set a provider
+      // The provider reads its key from process.env.
+      process.env.DEEPSEEK_API_KEY = env.DEEPSEEK_API_KEY;
+      const models = createModels();
+      models.setProvider(deepseekProvider());
       this.#harness = await Harness.open(
         await openDurableObjectSqliteStorage(ctx.storage),
         {
-          models,
-          registry: createRegistry(),
+          ...harnessOptions(models, {
+            url: env.SERVER_URL,
+            token: env.SERVER_TOKEN,
+            cwd: env.SERVER_CWD,
+          }),
           // A failed alarm write resets the object; it arms again when it next starts.
           onWake: (wake) =>
             void this.#arm(wake).catch(() => ctx.abort("Alarm write failed")),
@@ -47,14 +64,40 @@ export class Cell extends DurableObject<Env> {
     return new Response(null, { status: 101, webSocket: client });
   }
 
-  override webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer) {
+  override async webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer) {
     const send = (m: CellMessage) => ws.send(JSON.stringify(m));
     try {
       const msg = JSON.parse(String(raw)) as ClientMessage;
       if (msg.type === "hello") send({ type: "welcome", participants: [] });
-    } catch {
-      send({ type: "error", message: "bad message" });
+      else if (msg.type === "prompt")
+        send({ type: "history", entries: await this.#prompt(msg) });
+    } catch (e) {
+      send({
+        type: "error",
+        message: e instanceof Error ? e.message : "bad message",
+      });
     }
+  }
+
+  /** Runs one prompt to its answer and returns the transcript. */
+  async #prompt(msg: Extract<ClientMessage, { type: "prompt" }>) {
+    // TODO(step 6): validate, tag the sender, dedupe by requestId.
+    // TODO(step 7): stream events instead of replying once.
+    const root = await this.#harness.root(context, {
+      agent: {
+        model: {
+          provider: "deepseek",
+          modelId: this.env.MODEL ?? "deepseek-flash",
+        },
+      },
+    });
+    const sub = await root.submit(
+      { type: "input", content: msg.text, requestId: msg.requestId },
+      context,
+    );
+    await sub.wait(context);
+    const view = await root.viewState(context);
+    return [...view.value.entries];
   }
 
   override async alarm(): Promise<void> {

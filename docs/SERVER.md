@@ -8,6 +8,8 @@ Performs file and command operations inside one workspace directory for the Cell
 | `TOKEN`     | Bearer token (required). Every route but `/health` needs it. |
 | `PORT`      | Listen port, default `8788`.                                 |
 
+`pnpm dev:server` loads `packages/server/.env` if present (copy `.env.example`; gitignored).
+
 ```
 WORKSPACE=/path/to/checkout TOKEN=secret pnpm dev:server
 curl localhost:8788/health
