@@ -10,11 +10,13 @@
     "check": "biome check --error-on-warnings . && tsc -b",
     "format": "biome check --write .",
     "dev:cell": "pnpm --filter @durable/cell dev",
-    "dev:server": "pnpm --filter @durable/server dev"
+    "dev:server": "pnpm --filter @durable/server dev",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3",
     "@types/node": "26.6.5",
-    "typescript": "7.0.2"
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
   }
 }

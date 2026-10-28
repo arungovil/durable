@@ -6,6 +6,8 @@
     "dev": "node src/index.ts"
   },
   "dependencies": {
-    "@durable/protocol": "workspace:*"
+    "@durable/protocol": "workspace:*",
+    "@earendil-works/chord": "1.4.0",
+    "@earendil-works/pi-durable": "1.4.0"
   }
 }

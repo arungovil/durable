@@ -35,7 +35,8 @@ export interface ServerError {
 
 /** Every Server route answers 200 with this, except auth failures (401). */
 export type ServerResult<T> =
-  { ok: true; value: T } | { ok: false; error: ServerError };
+  | { ok: true; value: T }
+  | { ok: false; error: ServerError };
 
 export interface FileInfo {
   name: string;
