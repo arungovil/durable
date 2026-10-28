@@ -1,25 +1,26 @@
 # durable
 
-Multiplayer programming with pi: several people drive one shared agent session.
+Multiplayer programming with [pi](https://github.com/earendil-works/pi). Several people share one agent session, and the agent works on one shared codebase.
+
+> Early development. Not usable yet.
+
+## How it works
 
 ```
-client (pi extension)  --WebSocket-->  cell (celld Durable Object + pi-durable Harness)  --HTTP-->  server (files + tool runs)
+pi client  --WebSocket-->  Cell (celld Durable Object + pi-durable)  --HTTP-->  Server (files, commands)
 ```
 
-| Package             | Layer | Role                                                                                 |
-| ------------------- | ----- | ------------------------------------------------------------------------------------ |
-| `packages/client`   | 1     | pi extension; `/pair <url>` joins a Cell                                             |
-| `packages/cell`     | 2     | one Durable Object per session; hosts the pi-durable `Harness` on its SQLite storage |
-| `packages/server`   | 3     | owns workspace files, runs tools                                                     |
-| `packages/protocol` | -     | wire types shared by all layers                                                      |
+- **client**: a pi extension that joins a shared session.
+- **cell**: one Durable Object per session. It runs the agent loop and stores the conversation.
+- **server**: holds the codebase and runs the agent's file and shell tools.
 
-## Commands
+## Development
 
-- `pnpm install --ignore-scripts`
-- `pnpm check` - biome + `tsc -b`
-- `pnpm dev:cell` - `celld dev` on the Cell
-- `pnpm dev:server` - server on `:8788`
+Requires Node 22.19+, pnpm, and celld.
 
-## Conventions
-
-Erasable TypeScript only (Node strip-only), no `any`, top-level imports, exact-pinned deps, biome via `pnpm format`.
+```
+pnpm install --ignore-scripts
+pnpm check
+pnpm dev:cell
+pnpm dev:server
+```

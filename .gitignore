@@ -5,3 +5,5 @@ dist/
 .dev.vars
 .env
 .env.local
+docs/PLAN.md
+AGENTS.md

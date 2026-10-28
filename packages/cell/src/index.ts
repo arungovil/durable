@@ -24,7 +24,7 @@ export class Cell extends DurableObject<Env> {
       const current = await ctx.storage.getAlarm();
       if (current === null || current > fallback)
         await ctx.storage.setAlarm(fallback);
-      const models = createModels(); // TODO: set a provider
+      const models = createModels(); // TODO(step 4): set a provider
       this.#harness = await Harness.open(
         await openDurableObjectSqliteStorage(ctx.storage),
         {
