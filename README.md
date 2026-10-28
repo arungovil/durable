@@ -24,7 +24,3 @@ pnpm check
 pnpm dev:cell
 pnpm dev:server
 ```
-
-## Server
-
-Config, how to run it, and the threat note: `docs/SERVER.md`.

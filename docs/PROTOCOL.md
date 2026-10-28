@@ -26,3 +26,16 @@ Every route answers 200 with `{"ok":true,"value":...}` or `{"ok":false,"error":{
 | `/exec`     | `{command, cwd?, timeoutMs?}` | `{exitCode, stdout, stderr, truncated}` |
 
 Error codes match pi-durable's file and execution codes.
+
+## Cell `ExecutionEnv` adapter (`HttpExecutionEnv`)
+
+Implements pi-durable's `ExecutionEnv` over the routes above, built from the Server URL (also its `id`), token, and the workspace's absolute path (`cwd`). Tool paths resolve lexically against `cwd`; the Server does the confinement.
+
+| Supported                                                           | Notes                                                                                                                           |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `readTextFile`, `readBinaryFile`, `writeFile`, `fileInfo`, `exists` | `exists` is `fileInfo` with `not_found` as `false`.                                                                             |
+| `openBinaryReader`                                                  | Ranged `/fs/read` calls; `scanLines` streams the file in 256 KiB chunks. No `noFollow`.                                         |
+| `exec`                                                              | Buffered: output is delivered after the command ends, stdout before stderr. `env`, `inheritEnv`, `spill`, `window` are ignored. |
+| `absolutePath`, `joinPath`, `cleanup`                               | Local; no request.                                                                                                              |
+
+Everything else (`canonicalPath`, `openTextLineReader`, `readTextLines`, `appendFile`, `truncateFile`, `flushFile`, `renameFile`, `listDir`, `listFiles`, `openDirReader`, `watch`, `createDir`, `remove`, `createTempDir`, `createTempFile`) fails with `not_supported`. Transport failures and non-200 replies become `unknown`; an aborted signal becomes `aborted`.

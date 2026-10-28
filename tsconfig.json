@@ -3,6 +3,7 @@
   "references": [
     { "path": "packages/protocol" },
     { "path": "packages/cell" },
+    { "path": "packages/cell/test" },
     { "path": "packages/server" },
     { "path": "packages/client" }
   ]
