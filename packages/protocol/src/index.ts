@@ -5,13 +5,32 @@ export type ClientMessage =
   | { type: "hello"; name: string }
   | { type: "prompt"; text: string; requestId: string };
 
-/** Cell -> Client. `entries` and `event` get their real shapes in steps 5 and 7. */
+/** One transcript line as clients show it; the Cell flattens its stored entries to this. */
+export interface HistoryEntry {
+  /** Stable across reconnects, so a client can skip entries it already rendered. */
+  id: string;
+  role: "user" | "assistant" | "tool";
+  /** Plain text. An assistant tool call appears as `[tool: name]`; non-text parts are dropped. */
+  text: string;
+}
+
+/** Cell -> Client. `event` gets its real shape in step 7. */
 export type CellMessage =
   | { type: "welcome"; participants: string[] }
-  | { type: "history"; entries: unknown[] }
+  | { type: "history"; entries: HistoryEntry[] }
   | { type: "event"; event: unknown }
   | { type: "joined" | "left"; name: string }
   | { type: "error"; message: string };
+
+/** Path of a Cell's WebSocket: `/cell/<id>`, where the id is a lowercase v4 UUID. */
+export const CELL_PATH =
+  /^\/cell\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+/** Response of `POST /new` on the Cell base URL; the join URL is `<base>/cell/<id>`. */
+export interface NewCellResponse {
+  /** Random v4 UUID, lowercase; unguessable. */
+  id: string;
+}
 
 /** Same codes as pi-durable's FileErrorCode and ExecutionErrorCode, so the Cell adapter maps them one to one. */
 export type ErrorCode =

@@ -1,0 +1,19 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDir": "../..",
+    "types": ["node"]
+  },
+  "include": [
+    "*.ts",
+    "../src/connection.ts",
+    "../src/create.ts",
+    "../src/result.ts",
+    "../src/url.ts"
+  ],
+  "references": [{ "path": "../../protocol" }]
+}

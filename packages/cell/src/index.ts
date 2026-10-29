@@ -1,5 +1,10 @@
 import { DurableObject } from "cloudflare:workers";
-import type { CellMessage, ClientMessage } from "@durable/protocol";
+import {
+  CELL_PATH,
+  type CellMessage,
+  type ClientMessage,
+  type NewCellResponse,
+} from "@durable/protocol";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
 import { createModels } from "@earendil-works/pi-ai";
 import { deepseekProvider } from "@earendil-works/pi-ai/providers/deepseek";
@@ -7,6 +12,7 @@ import { Harness, type Wake } from "@earendil-works/pi-durable";
 import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/storage/sqlite/cloudflare";
 
 import { harnessOptions } from "./harness.ts";
+import { toHistory } from "./history.ts";
 
 const context = BACKGROUND_CONTEXT;
 const HEARTBEAT_MS = 60_000;
@@ -68,9 +74,13 @@ export class Cell extends DurableObject<Env> {
     const send = (m: CellMessage) => ws.send(JSON.stringify(m));
     try {
       const msg = JSON.parse(String(raw)) as ClientMessage;
-      if (msg.type === "hello") send({ type: "welcome", participants: [] });
-      else if (msg.type === "prompt")
-        send({ type: "history", entries: await this.#prompt(msg) });
+      if (msg.type === "hello") {
+        send({ type: "welcome", participants: [] });
+        send({ type: "history", entries: await this.#history() });
+      } else if (msg.type === "prompt") {
+        await this.#prompt(msg);
+        send({ type: "history", entries: await this.#history() });
+      }
     } catch (e) {
       send({
         type: "error",
@@ -79,11 +89,8 @@ export class Cell extends DurableObject<Env> {
     }
   }
 
-  /** Runs one prompt to its answer and returns the transcript. */
-  async #prompt(msg: Extract<ClientMessage, { type: "prompt" }>) {
-    // TODO(step 6): validate, tag the sender, dedupe by requestId.
-    // TODO(step 7): stream events instead of replying once.
-    const root = await this.#harness.root(context, {
+  #root() {
+    return this.#harness.root(context, {
       agent: {
         model: {
           provider: "deepseek",
@@ -91,13 +98,23 @@ export class Cell extends DurableObject<Env> {
         },
       },
     });
+  }
+
+  async #history() {
+    const view = await (await this.#root()).viewState(context);
+    return toHistory(view.value.entries);
+  }
+
+  /** Runs one prompt to its answer. */
+  async #prompt(msg: Extract<ClientMessage, { type: "prompt" }>) {
+    // TODO(step 6): validate, tag the sender, dedupe by requestId.
+    // TODO(step 7): stream events instead of replying once.
+    const root = await this.#root();
     const sub = await root.submit(
       { type: "input", content: msg.text, requestId: msg.requestId },
       context,
     );
     await sub.wait(context);
-    const view = await root.viewState(context);
-    return [...view.value.entries];
   }
 
   override async alarm(): Promise<void> {
@@ -119,9 +136,15 @@ export class Cell extends DurableObject<Env> {
 
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
-    const m = new URL(req.url).pathname.match(/^\/cell\/([\w-]{1,64})$/);
-    if (!m || req.headers.get("Upgrade") !== "websocket")
+    const { pathname } = new URL(req.url);
+    if (pathname === "/new" && req.method === "POST") {
+      return Response.json({
+        id: crypto.randomUUID(),
+      } satisfies NewCellResponse);
+    }
+    if (!CELL_PATH.test(pathname) || req.headers.get("Upgrade") !== "websocket")
       return new Response("not found", { status: 404 });
-    return env.CELL.get(env.CELL.idFromName(m[1])).fetch(req);
+    const name = pathname.slice("/cell/".length);
+    return env.CELL.get(env.CELL.idFromName(name)).fetch(req);
   },
 };
