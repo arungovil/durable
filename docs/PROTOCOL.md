@@ -2,17 +2,21 @@
 
 Types live in `packages/protocol/src/index.ts`; this file is the human summary.
 
-## Client <-> Cell (WebSocket at `/cell/<name>`)
+## Client <-> Cell
 
-| Direction      | Message           | Example                                                   |
-| -------------- | ----------------- | --------------------------------------------------------- |
-| client -> cell | `hello`           | `{"type":"hello","name":"u1"}`                            |
-| client -> cell | `prompt`          | `{"type":"prompt","text":"fix the bug","requestId":"r1"}` |
-| cell -> client | `welcome`         | `{"type":"welcome","participants":["u1"]}`                |
-| cell -> client | `history`         | `{"type":"history","entries":[]}` (entry shape: step 5)   |
-| cell -> client | `event`           | `{"type":"event","event":{}}` (event shape: step 7)       |
-| cell -> client | `joined` / `left` | `{"type":"joined","name":"u2"}`                           |
-| cell -> client | `error`           | `{"type":"error","message":"bad message"}`                |
+`POST /new` on the Cell base URL creates a session and answers `{"id":"<uuid>"}` (`NewCellResponse`). The WebSocket is at `/cell/<id>`; any other path, or an id that is not a lowercase v4 UUID, is 404. The unguessable id makes the join URL (`<base>/cell/<id>`) the invite, until step 9 adds a token. Clients accept `http(s)` and `ws(s)` join URLs, or a bare id, which joins on the default Cell (`http://127.0.0.1:9876` until there is a hosted one).
+
+On `hello` the Cell answers `welcome`, then `history`. A reconnect gets the full history again; clients skip entry ids they have shown.
+
+| Direction      | Message           | Example                                                                                                      |
+| -------------- | ----------------- | ------------------------------------------------------------------------------------------------------------ |
+| client -> cell | `hello`           | `{"type":"hello","name":"u1"}`                                                                               |
+| client -> cell | `prompt`          | `{"type":"prompt","text":"fix the bug","requestId":"r1"}`                                                    |
+| cell -> client | `welcome`         | `{"type":"welcome","participants":["u1"]}`                                                                   |
+| cell -> client | `history`         | `{"type":"history","entries":[{"id":"e1","role":"user","text":"hi"}]}` (`role`: `user`, `assistant`, `tool`) |
+| cell -> client | `event`           | `{"type":"event","event":{}}` (event shape: step 7)                                                          |
+| cell -> client | `joined` / `left` | `{"type":"joined","name":"u2"}`                                                                              |
+| cell -> client | `error`           | `{"type":"error","message":"bad message"}`                                                                   |
 
 ## Cell -> Server (HTTP POST, JSON, `Authorization: Bearer <token>`)
 

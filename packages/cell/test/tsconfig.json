@@ -12,6 +12,7 @@
     "*.ts",
     "../src/http-env.ts",
     "../src/harness.ts",
+    "../src/history.ts",
     "../../server/src"
   ],
   "references": [{ "path": "../../protocol" }]
