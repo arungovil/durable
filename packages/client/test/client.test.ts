@@ -97,6 +97,18 @@ it("passes messages on and ignores malformed frames", () => {
   expect(messages).toEqual([welcome]);
 });
 
+it("send() writes only while the socket is open", () => {
+  const { ws, conn } = setup();
+  const prompt = { type: "prompt", text: "hi", requestId: "r1" } as const;
+  expect(conn.send(prompt)).toBe(false);
+  ws.dispatchEvent(new Event("open"));
+  expect(conn.send(prompt)).toBe(true);
+  expect(ws.sent.at(-1)).toBe(JSON.stringify(prompt));
+  ws.dispatchEvent(new Event("close"));
+  expect(conn.send(prompt)).toBe(false);
+  expect(ws.sent).toHaveLength(2); // hello and the one prompt
+});
+
 it("close() closes the socket and stays quiet about the close event", () => {
   const { ws, conn, states } = setup();
   conn.close();

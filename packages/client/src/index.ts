@@ -1,8 +1,9 @@
 import { userInfo } from "node:os";
 import type { CellMessage, HistoryEntry } from "@durable/protocol";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { connect } from "./connection.ts";
+import { type Connection, connect } from "./connection.ts";
 import { createCell } from "./create.ts";
+import { handleInput } from "./input.ts";
 import { DEFAULT_CELL_URL, parseCellUrl } from "./url.ts";
 
 const SUBCOMMANDS = ["create", "join", "leave"];
@@ -11,7 +12,13 @@ const render = (e: HistoryEntry) => `${e.role}: ${e.text}`;
 
 // Layer 1: pi extension. Connects the local pi session to a Cell over WebSocket.
 export default function (pi: ExtensionAPI) {
-  let current: { close: () => void } | undefined;
+  let current: Connection | undefined;
+
+  pi.on("input", (event, ctx) =>
+    handleInput(event, current, (message, level) =>
+      ctx.ui.notify(message, level),
+    ),
+  );
 
   pi.registerCommand("durable", {
     description:
