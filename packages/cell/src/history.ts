@@ -1,32 +1,38 @@
-import type { HistoryEntry } from "@durable/protocol";
+import type { HistoryEntry, TranscriptMessage } from "@durable/protocol";
 import type { Message } from "@earendil-works/pi-ai";
 import type { EntryRecord } from "@earendil-works/pi-durable";
 
-function textOf({ content }: Message): string {
-  if (typeof content === "string") return content;
-  return content
-    .map((part) =>
-      part.type === "text"
-        ? part.text
-        : part.type === "toolCall"
-          ? `[tool: ${part.name}]`
-          : "",
-    )
-    .filter(Boolean)
-    .join("\n");
+const isTranscript = (m: Message): m is TranscriptMessage =>
+  m.role !== "system";
+
+/** Kind of a stored prompt; its data holds the author. */
+export const PROMPT_KIND = "chat.message";
+
+/** `calls` maps tool call ids to arguments, filled as assistant messages pass. */
+export function toHistoryEntry(
+  e: EntryRecord,
+  calls: Map<string, Record<string, unknown>>,
+): HistoryEntry | undefined {
+  const message = e.model?.at(-1);
+  if (!message || !isTranscript(message)) return undefined;
+  const entry: HistoryEntry = { id: String(e.id), message };
+  if (message.role === "assistant") {
+    for (const part of message.content)
+      if (part.type === "toolCall") calls.set(part.id, part.arguments);
+  } else if (message.role === "toolResult") {
+    const args = calls.get(message.toolCallId);
+    if (args) entry.args = args;
+  } else if (e.kind === PROMPT_KIND) {
+    const author = (e.data as { author?: unknown } | undefined)?.author;
+    if (typeof author === "string") entry.author = author;
+  }
+  return entry;
 }
 
-const ROLES: Partial<Record<Message["role"], HistoryEntry["role"]>> = {
-  user: "user",
-  assistant: "assistant",
-  toolResult: "tool",
-};
-
-/** Flattens stored entries to what clients show; entries with no model message (bookkeeping) are skipped. */
-export function toHistory(entries: readonly EntryRecord[]): HistoryEntry[] {
-  return entries.flatMap((e) => {
-    const m = e.model?.at(-1);
-    const role = m && ROLES[m.role];
-    return role ? [{ id: String(e.id), role, text: textOf(m) }] : [];
-  });
+/** Entries in order, skipping bookkeeping. Pass `calls` to keep it across calls. */
+export function toHistory(
+  entries: readonly EntryRecord[],
+  calls: Map<string, Record<string, unknown>> = new Map(),
+): HistoryEntry[] {
+  return entries.flatMap((e) => toHistoryEntry(e, calls) ?? []);
 }

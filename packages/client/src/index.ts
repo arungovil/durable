@@ -8,7 +8,9 @@ import { DEFAULT_CELL_URL, parseCellUrl } from "./url.ts";
 
 const SUBCOMMANDS = ["create", "join", "leave"];
 
-const render = (e: HistoryEntry) => `${e.role}: ${e.text}`;
+// TODO(step 7): draw entries with pi's own components.
+const render = ({ message }: HistoryEntry) =>
+  `${message.role}: ${JSON.stringify(message.content)}`;
 
 // Layer 1: pi extension. Connects the local pi session to a Cell over WebSocket.
 export default function (pi: ExtensionAPI) {

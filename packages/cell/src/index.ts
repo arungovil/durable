@@ -12,7 +12,7 @@ import { Harness, type Wake } from "@earendil-works/pi-durable";
 import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/storage/sqlite/cloudflare";
 
 import { harnessOptions } from "./harness.ts";
-import { toHistory } from "./history.ts";
+import { PROMPT_KIND, toHistory } from "./history.ts";
 import { parseClientMessage } from "./message.ts";
 
 const context = BACKGROUND_CONTEXT;
@@ -128,7 +128,7 @@ export class Cell extends DurableObject<Env> {
       {
         type: "input",
         content: `${name}: ${msg.text}`,
-        entry: { kind: "chat.message", data: { author: name, text: msg.text } },
+        entry: { kind: PROMPT_KIND, data: { author: name, text: msg.text } },
         requestId: msg.requestId,
       },
       context,

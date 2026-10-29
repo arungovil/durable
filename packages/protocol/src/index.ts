@@ -1,3 +1,5 @@
+import type { Message } from "@earendil-works/pi-ai";
+
 // Wire types shared by all three layers. Client <-> Cell is WebSocket; Cell -> Server is HTTP.
 
 /** Client -> Cell. */
@@ -5,13 +7,19 @@ export type ClientMessage =
   | { type: "hello"; name: string }
   | { type: "prompt"; text: string; requestId: string };
 
-/** One transcript line as clients show it; the Cell flattens its stored entries to this. */
+/** The roles clients draw; the system message is never sent. */
+export type TranscriptMessage = Extract<
+  Message,
+  { role: "user" | "assistant" | "toolResult" }
+>;
+
+/** One finished transcript item. Bookkeeping entries are never sent. */
 export interface HistoryEntry {
-  /** Stable across reconnects, so a client can skip entries it already rendered. */
   id: string;
-  role: "user" | "assistant" | "tool";
-  /** Plain text. An assistant tool call appears as `[tool: name]`; non-text parts are dropped. */
-  text: string;
+  message: TranscriptMessage;
+  author?: string;
+  /** Tool results only: arguments of the call it answers, absent if that call is unknown. */
+  args?: Record<string, unknown>;
 }
 
 /** Cell -> Client. `event` gets its real shape in step 7. */
@@ -54,7 +62,8 @@ export interface ServerError {
 
 /** Outcome of an operation that can fail in expected ways. A string `error` is a message for the user. */
 export type Result<T, E = string> =
-  { ok: true; value: T } | { ok: false; error: E };
+  | { ok: true; value: T }
+  | { ok: false; error: E };
 
 /** Every Server route answers 200 with this, except auth failures (401). */
 export type ServerResult<T> = Result<T, ServerError>;
