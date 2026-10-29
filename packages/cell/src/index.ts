@@ -13,6 +13,7 @@ import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/stora
 
 import { harnessOptions } from "./harness.ts";
 import { toHistory } from "./history.ts";
+import { parseClientMessage } from "./message.ts";
 
 const context = BACKGROUND_CONTEXT;
 const HEARTBEAT_MS = 60_000;
@@ -27,6 +28,11 @@ interface Env {
   DEEPSEEK_API_KEY: string;
   /** pi-ai DeepSeek model id; defaults to `deepseek-flash`. */
   MODEL?: string;
+}
+
+/** Per-socket data kept with `serializeAttachment`; absent until the client says hello. */
+interface Attachment {
+  name: string;
 }
 
 // Layer 2: one Cell per shared session. Hosts the pi-durable Harness on this object's SQLite storage.
@@ -72,20 +78,24 @@ export class Cell extends DurableObject<Env> {
 
   override async webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer) {
     const send = (m: CellMessage) => ws.send(JSON.stringify(m));
+    const fail = (message: string) => send({ type: "error", message });
+    if (typeof raw !== "string") return fail("binary messages not supported");
+    const parsed = parseClientMessage(raw);
+    if (!parsed.ok) return fail(parsed.error);
+    const msg = parsed.value;
     try {
-      const msg = JSON.parse(String(raw)) as ClientMessage;
       if (msg.type === "hello") {
+        // The attachment survives hibernation; a field on this object would not.
+        ws.serializeAttachment({ name: msg.name } satisfies Attachment);
         send({ type: "welcome", participants: [] });
         send({ type: "history", entries: await this.#history() });
       } else if (msg.type === "prompt") {
+        if (!ws.deserializeAttachment()) return fail("send hello first");
         await this.#prompt(msg);
         send({ type: "history", entries: await this.#history() });
       }
     } catch (e) {
-      send({
-        type: "error",
-        message: e instanceof Error ? e.message : "bad message",
-      });
+      fail(e instanceof Error ? e.message : "request failed");
     }
   }
 
