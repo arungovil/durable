@@ -90,8 +90,9 @@ export class Cell extends DurableObject<Env> {
         send({ type: "welcome", participants: [] });
         send({ type: "history", entries: await this.#history() });
       } else if (msg.type === "prompt") {
-        if (!ws.deserializeAttachment()) return fail("send hello first");
-        await this.#prompt(msg);
+        const who = ws.deserializeAttachment() as Attachment | null;
+        if (!who) return fail("send hello first");
+        await this.#prompt(who.name, msg);
         send({ type: "history", entries: await this.#history() });
       }
     } catch (e) {
@@ -115,13 +116,21 @@ export class Cell extends DurableObject<Env> {
     return toHistory(view.value.entries);
   }
 
-  /** Runs one prompt to its answer. */
-  async #prompt(msg: Extract<ClientMessage, { type: "prompt" }>) {
-    // TODO(step 6): validate, tag the sender, dedupe by requestId.
+  /**
+   * Runs one prompt to its answer. The model reads `name: text`; the entry keeps the author as a field.
+   * A repeated `requestId` returns the original submission (pi-durable dedupes).
+   */
+  async #prompt(name: string, msg: Extract<ClientMessage, { type: "prompt" }>) {
+    // TODO(step 6): test the requestId dedupe through the Cell.
     // TODO(step 7): stream events instead of replying once.
     const root = await this.#root();
     const sub = await root.submit(
-      { type: "input", content: msg.text, requestId: msg.requestId },
+      {
+        type: "input",
+        content: `${name}: ${msg.text}`,
+        entry: { kind: "chat.message", data: { author: name, text: msg.text } },
+        requestId: msg.requestId,
+      },
       context,
     );
     await sub.wait(context);
