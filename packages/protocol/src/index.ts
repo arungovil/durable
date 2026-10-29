@@ -38,11 +38,11 @@ export type CellEvent =
   /** A run failed, e.g. `model_error: ...`. */
   | { type: "error"; message: string };
 
-/** Cell -> Client. `event` gets its real shape in step 7. */
+/** Cell -> Client. */
 export type CellMessage =
   | { type: "welcome"; participants: string[] }
   | { type: "history"; entries: HistoryEntry[] }
-  | { type: "event"; event: unknown }
+  | { type: "event"; event: CellEvent }
   | { type: "joined" | "left"; name: string }
   | { type: "error"; message: string };
 
@@ -78,7 +78,8 @@ export interface ServerError {
 
 /** Outcome of an operation that can fail in expected ways. A string `error` is a message for the user. */
 export type Result<T, E = string> =
-  { ok: true; value: T } | { ok: false; error: E };
+  | { ok: true; value: T }
+  | { ok: false; error: E };
 
 /** Every Server route answers 200 with this, except auth failures (401). */
 export type ServerResult<T> = Result<T, ServerError>;

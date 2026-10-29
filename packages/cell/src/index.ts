@@ -8,9 +8,10 @@ import {
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
 import { createModels } from "@earendil-works/pi-ai";
 import { deepseekProvider } from "@earendil-works/pi-ai/providers/deepseek";
-import { Harness, type Wake } from "@earendil-works/pi-durable";
+import { Harness, type Wake, watchEvents } from "@earendil-works/pi-durable";
 import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/storage/sqlite/cloudflare";
 
+import { type Calls, toCellEvents } from "./events.ts";
 import { harnessOptions } from "./harness.ts";
 import { PROMPT_KIND, toHistory } from "./history.ts";
 import { parseClientMessage } from "./message.ts";
@@ -35,9 +36,10 @@ interface Attachment {
   name: string;
 }
 
-// Layer 2: one Cell per shared session. Hosts the pi-durable Harness on this object's SQLite storage.
 export class Cell extends DurableObject<Env> {
   #harness!: Harness;
+  /** Tool calls of the current run, so a live result can carry its call's arguments. */
+  #calls: Calls = new Map();
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -67,6 +69,7 @@ export class Cell extends DurableObject<Env> {
       );
       await this.#arm(this.#harness.wake());
       this.#harness.resume();
+      await this.#watch();
     });
   }
 
@@ -93,7 +96,6 @@ export class Cell extends DurableObject<Env> {
         const who = ws.deserializeAttachment() as Attachment | null;
         if (!who) return fail("send hello first");
         await this.#prompt(who.name, msg);
-        send({ type: "history", entries: await this.#history() });
       }
     } catch (e) {
       fail(e instanceof Error ? e.message : "request failed");
@@ -117,14 +119,16 @@ export class Cell extends DurableObject<Env> {
   }
 
   /**
-   * Runs one prompt to its answer. The model reads `name: text`; the entry keeps the author as a field.
+   * Submits a prompt and returns; the run's output reaches clients through `#watch`.
+   * The model reads `name: text`; the entry keeps the author as a field.
    * A repeated `requestId` returns the original submission (pi-durable dedupes).
    */
   async #prompt(name: string, msg: Extract<ClientMessage, { type: "prompt" }>) {
     // TODO(step 6): test the requestId dedupe through the Cell.
-    // TODO(step 7): stream events instead of replying once.
+    // Armed first, as pi-durable requires for any call that can start work.
+    await this.#arm({ ...this.#harness.wake(), active: true });
     const root = await this.#root();
-    const sub = await root.submit(
+    await root.submit(
       {
         type: "input",
         content: `${name}: ${msg.text}`,
@@ -133,7 +137,49 @@ export class Cell extends DurableObject<Env> {
       },
       context,
     );
-    await sub.wait(context);
+  }
+
+  /**
+   * One watch for the whole object. After an eviction the next start watches again and resends
+   * history, which covers what happened while nothing watched.
+   */
+  async #watch() {
+    const root = await this.#root();
+    const stream = await watchEvents(this.#harness, root.id, context);
+    toHistory(stream.snapshot.entries, this.#calls);
+    stream.start(async (events) => {
+      if (events.some((e) => e.type === "snapshot")) await this.#resync();
+      for (const event of toCellEvents(events, this.#calls))
+        this.#broadcast({ type: "event", event });
+    });
+    void stream.closed.then((end) => {
+      if (end.reason !== "stopped")
+        this.#broadcast({
+          type: "error",
+          message: `live updates ended (${end.reason}); rejoin the session`,
+        });
+    });
+    if (this.ctx.getWebSockets().length) await this.#resync();
+  }
+
+  /** Sends the full history to every greeted socket; clients skip entries they have. */
+  async #resync() {
+    try {
+      this.#broadcast({ type: "history", entries: await this.#history() });
+    } catch {
+      this.#broadcast({ type: "error", message: "could not refresh history" });
+    }
+  }
+
+  /** Sends to sockets that said hello; a socket still closing must not end the watch. */
+  #broadcast(m: CellMessage) {
+    const data = JSON.stringify(m);
+    for (const ws of this.ctx.getWebSockets()) {
+      if (!ws.deserializeAttachment()) continue;
+      try {
+        ws.send(data);
+      } catch {}
+    }
   }
 
   override async alarm(): Promise<void> {

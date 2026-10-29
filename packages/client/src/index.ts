@@ -1,20 +1,24 @@
 import { userInfo } from "node:os";
-import type { CellMessage, HistoryEntry } from "@durable/protocol";
+import type { HistoryEntry } from "@durable/protocol";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { type Connection, connect } from "./connection.ts";
 import { createCell } from "./create.ts";
 import { handleInput } from "./input.ts";
+import { createHandler, ENTRY_TYPE } from "./messages.ts";
+import { renderEntry } from "./render.ts";
 import { DEFAULT_CELL_URL, parseCellUrl } from "./url.ts";
 
 const SUBCOMMANDS = ["create", "join", "leave"];
 
-// TODO(step 7): draw entries with pi's own components.
-const render = ({ message }: HistoryEntry) =>
-  `${message.role}: ${JSON.stringify(message.content)}`;
+const RUN_STATUS = "durable-run";
 
-// Layer 1: pi extension. Connects the local pi session to a Cell over WebSocket.
 export default function (pi: ExtensionAPI) {
   let current: Connection | undefined;
+
+  // Entries are shown but, unlike messages, not sent to the local model.
+  pi.registerEntryRenderer<HistoryEntry>(ENTRY_TYPE, (entry, { expanded }) =>
+    entry.data ? renderEntry(entry.data, expanded) : undefined,
+  );
 
   pi.on("input", (event, ctx) =>
     handleInput(event, current, (message, level) =>
@@ -43,26 +47,17 @@ export default function (pi: ExtensionAPI) {
         const parsed = parseCellUrl(url);
         if (!parsed.ok) return fail("join", parsed.error);
         current?.close();
-        const seen = new Set<string>();
+        ctx.ui.setStatus(RUN_STATUS, undefined);
         current = connect({
           wsUrl: parsed.value,
           name: user,
           onState: (s) => ctx.ui.setStatus("durable", `cell: ${s}`),
           onError: (message) => ctx.ui.notify(message, "warning"),
-          onMessage: (m: CellMessage) => {
-            if (m.type === "error") ctx.ui.notify(m.message, "error");
-            else if (m.type === "history") {
-              // A reconnect resends everything; show only what is new.
-              const fresh = m.entries.filter((e) => !seen.has(e.id));
-              for (const e of fresh) seen.add(e.id);
-              if (fresh.length)
-                pi.sendMessage({
-                  customType: "durable-history",
-                  content: fresh.map(render).join("\n\n"),
-                  display: true,
-                });
-            }
-          },
+          onMessage: createHandler({
+            append: (entry) => pi.appendEntry(ENTRY_TYPE, entry),
+            notify: (message, level) => ctx.ui.notify(message, level),
+            setRun: (text) => ctx.ui.setStatus(RUN_STATUS, text),
+          }),
         });
       };
 
@@ -80,6 +75,7 @@ export default function (pi: ExtensionAPI) {
         current.close();
         current = undefined;
         ctx.ui.setStatus("durable", undefined);
+        ctx.ui.setStatus(RUN_STATUS, undefined);
         return ctx.ui.notify("Left the session", "info");
       }
       if (sub === "create") {

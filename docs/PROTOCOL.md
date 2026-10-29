@@ -8,15 +8,15 @@ Types live in `packages/protocol/src/index.ts`; this file is the human summary.
 
 On `hello` the Cell answers `welcome`, then `history`. A reconnect gets the full history again; clients skip entry ids they have shown.
 
-| Direction      | Message           | Example                                                                                                      |
-| -------------- | ----------------- | ------------------------------------------------------------------------------------------------------------ |
-| client -> cell | `hello`           | `{"type":"hello","name":"u1"}`                                                                               |
-| client -> cell | `prompt`          | `{"type":"prompt","text":"fix the bug","requestId":"r1"}`                                                    |
-| cell -> client | `welcome`         | `{"type":"welcome","participants":["u1"]}`                                                                   |
-| cell -> client | `history`         | `{"type":"history","entries":[{"id":"e1","role":"user","text":"hi"}]}` (`role`: `user`, `assistant`, `tool`) |
-| cell -> client | `event`           | `{"type":"event","event":{}}` (event shape: step 7)                                                          |
-| cell -> client | `joined` / `left` | `{"type":"joined","name":"u2"}`                                                                              |
-| cell -> client | `error`           | `{"type":"error","message":"unknown message type"}`                                                          |
+| Direction      | Message           | Example                                                                                                                           |
+| -------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| client -> cell | `hello`           | `{"type":"hello","name":"u1"}`                                                                                                    |
+| client -> cell | `prompt`          | `{"type":"prompt","text":"fix the bug","requestId":"r1"}`                                                                         |
+| cell -> client | `welcome`         | `{"type":"welcome","participants":["u1"]}`                                                                                        |
+| cell -> client | `history`         | `{"type":"history","entries":[{"id":"7","message":{"role":"user","content":"ann: hi"},"author":"ann"}]}` (see Transcript entries) |
+| cell -> client | `event`           | `{"type":"event","event":{"type":"run_start"}}` (see Live events)                                                                 |
+| cell -> client | `joined` / `left` | `{"type":"joined","name":"u2"}`                                                                                                   |
+| cell -> client | `error`           | `{"type":"error","message":"unknown message type"}`                                                                               |
 
 ### Validation
 
@@ -39,7 +39,32 @@ The Cell takes the sender from the socket's `hello`, never from the prompt, so a
 - `entry` is `{"kind":"chat.message","data":{"author":"<name>","text":"<text>"}}`, so the transcript keeps the author as a field.
 - `requestId` is passed through. pi-durable returns the original submission for a repeated id, so a retry does not run twice.
 
-`history` entries show the model's text, so a prompt appears as `ann: can you check the build?` with role `user`. The Cell answers a `prompt` with a full `history` to the sender only, once the run has finished; live updates to everyone are step 7.
+### Transcript entries
+
+A `history` entry (`HistoryEntry`) is one finished item of the conversation, in the form pi draws it:
+
+- `id`: stable across reconnects; clients skip ids they have shown.
+- `message`: a pi-ai message with role `user`, `assistant` or `toolResult`. An assistant message carries its text, thinking and tool calls; a tool result carries `content`, `isError` and `durationMs`. A prompt reads `<author>: <text>`.
+- `author`: who sent a user prompt; absent otherwise.
+- `args`: on a tool result, the arguments of the call it answers, so a client can draw the whole tool box. Absent if the call is not in the transcript.
+
+Bookkeeping entries (the system message that lists tools) are never sent.
+
+### Live events
+
+A `prompt` is answered by nothing directly: the Cell submits it and returns. Everything the run does reaches every client that has said hello, as `event` messages (`CellEvent`), one per finished item. Text is not streamed token by token; a message arrives when the model finishes it, a tool result when the tool finishes.
+
+| `event.type` | Fields                   | When                                                                                                                                               |
+| ------------ | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entry`      | `entry` (`HistoryEntry`) | A prompt, an assistant message, or a tool result is stored. An assistant message that failed has `stopReason: "error"`.                            |
+| `tool_start` | `id`, `name`, `args`     | A tool call began. Its result follows as an `entry` with the same `toolCallId`. Parallel calls finish in any order.                                |
+| `run_start`  |                          | The agent began working on queued input.                                                                                                           |
+| `run_end`    |                          | That run finished, with or without an answer.                                                                                                      |
+| `error`      | `message`                | A run could not be answered, e.g. `model_error: <detail>`, or a task failed. A failed tool is not an error: it is an `entry` with `isError: true`. |
+
+Order within a run: `entry` (the prompt), `run_start`, then per model turn an assistant `entry`, a `tool_start` and result `entry` for each call, and finally `run_end` (and `error` if it failed).
+
+**Joining and missing events.** A socket receives events from the moment it says `hello`, and then a `history` read after that, so nothing falls between the two; an entry that arrives both ways has the same `id`, and clients show it once. After the Cell restarts or wakes from hibernation it starts a new watch and sends `history` again to every connected socket, for anything that happened while nothing watched. The same happens when the Cell fell too far behind to send every event. Events from the dead window (such as `tool_start`) are not replayed; their entries are in the history.
 
 ### Client input
 

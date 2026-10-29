@@ -13,6 +13,8 @@
     "../src/connection.ts",
     "../src/create.ts",
     "../src/input.ts",
+    "../src/messages.ts",
+    "../src/render.ts",
     "../src/url.ts"
   ],
   "references": [{ "path": "../../protocol" }]
