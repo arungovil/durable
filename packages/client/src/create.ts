@@ -1,5 +1,4 @@
-import type { NewCellResponse } from "@durable/protocol";
-import type { Result } from "./result.ts";
+import type { NewCellResponse, Result } from "@durable/protocol";
 
 const TIMEOUT_MS = 10_000;
 

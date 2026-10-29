@@ -12,7 +12,6 @@
     "*.ts",
     "../src/connection.ts",
     "../src/create.ts",
-    "../src/result.ts",
     "../src/url.ts"
   ],
   "references": [{ "path": "../../protocol" }]
