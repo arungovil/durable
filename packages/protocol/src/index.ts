@@ -52,10 +52,12 @@ export interface ServerError {
   path?: string;
 }
 
+/** Outcome of an operation that can fail in expected ways. A string `error` is a message for the user. */
+export type Result<T, E = string> =
+  { ok: true; value: T } | { ok: false; error: E };
+
 /** Every Server route answers 200 with this, except auth failures (401). */
-export type ServerResult<T> =
-  | { ok: true; value: T }
-  | { ok: false; error: ServerError };
+export type ServerResult<T> = Result<T, ServerError>;
 
 export interface FileInfo {
   name: string;
