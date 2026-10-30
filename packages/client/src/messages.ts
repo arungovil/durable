@@ -5,7 +5,7 @@ export const ENTRY_TYPE = "durable-entry";
 
 export interface Sink {
   append: (entry: HistoryEntry) => void;
-  notify: (message: string, level: "error") => void;
+  notify: (message: string, level: "info" | "error") => void;
   /** The live status line; `undefined` clears it. */
   setRun: (text: string | undefined) => void;
 }
@@ -25,6 +25,12 @@ export function createHandler(sink: Sink): (m: CellMessage) => void {
         return m.entries.forEach(show);
       case "error":
         return sink.notify(m.message, "error");
+      case "welcome":
+        if (m.participants.length < 2) return;
+        return sink.notify(`In session: ${m.participants.join(", ")}`, "info");
+      case "joined":
+      case "left":
+        return sink.notify(`${m.name} ${m.type}`, "info");
       case "event": {
         const { event } = m;
         switch (event.type) {

@@ -64,9 +64,11 @@ it("reports errors and clears the status", () => {
   expect(runs).toEqual([undefined]);
 });
 
-it("ignores welcome and joined/left", () => {
-  const { handle, appended, notes, runs } = setup();
-  handle({ type: "welcome", participants: [] });
-  handle({ type: "joined", name: "bob" });
-  expect([appended, notes, runs]).toEqual([[], [], []]);
+it("announces who is here, who joined and who left", () => {
+  const { handle, notes } = setup();
+  handle({ type: "welcome", participants: ["ann"] });
+  handle({ type: "welcome", participants: ["ann", "bob"] });
+  handle({ type: "joined", name: "cy" });
+  handle({ type: "left", name: "bob" });
+  expect(notes).toEqual(["In session: ann, bob", "cy joined", "bob left"]);
 });

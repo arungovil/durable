@@ -6,7 +6,9 @@ Types live in `packages/protocol/src/index.ts`; this file is the human summary.
 
 `POST /new` on the Cell base URL creates a session and answers `{"id":"<uuid>"}` (`NewCellResponse`). The WebSocket is at `/cell/<id>`; any other path, or an id that is not a lowercase v4 UUID, is 404. The unguessable id makes the join URL (`<base>/cell/<id>`) the invite, until step 9 adds a token. Clients accept `http(s)` and `ws(s)` join URLs, or a bare id, which joins on the default Cell (`http://127.0.0.1:9876` until there is a hosted one).
 
-On `hello` the Cell answers `welcome`, then `history`. A reconnect gets the full history again; clients skip entry ids they have shown.
+On `hello` the Cell answers `welcome` (every name now connected, including the new one), then `history`, and tells the other sockets `joined`. A reconnect gets the full history again; clients skip entry ids they have shown.
+
+`left` goes out when a name's last socket closes. Two sockets under one name count as one participant, so two users with the same name show once.
 
 | Direction      | Message           | Example                                                                                                                           |
 | -------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |

@@ -90,7 +90,14 @@ export class Cell extends DurableObject<Env> {
       if (msg.type === "hello") {
         // The attachment survives hibernation; a field on this object would not.
         ws.serializeAttachment({ name: msg.name } satisfies Attachment);
-        send({ type: "welcome", participants: [] });
+        const others = this.#names(ws);
+        send({
+          type: "welcome",
+          participants: [...new Set([...others, msg.name])],
+        });
+        // A second socket under a known name is the same participant.
+        if (!others.includes(msg.name))
+          this.#broadcast({ type: "joined", name: msg.name }, ws);
         send({ type: "history", entries: await this.#history() });
       } else if (msg.type === "prompt") {
         const who = ws.deserializeAttachment() as Attachment | null;
@@ -100,6 +107,23 @@ export class Cell extends DurableObject<Env> {
     } catch (e) {
       fail(e instanceof Error ? e.message : "request failed");
     }
+  }
+
+  override async webSocketClose(ws: WebSocket) {
+    const who = ws.deserializeAttachment() as Attachment | null;
+    if (who && !this.#names(ws).includes(who.name))
+      this.#broadcast({ type: "left", name: who.name }, ws);
+  }
+
+  /** Names of greeted sockets other than `except`, which may still be listed while it closes. */
+  #names(except: WebSocket): string[] {
+    return this.ctx
+      .getWebSockets()
+      .filter((ws) => ws !== except)
+      .flatMap((ws) => {
+        const who = ws.deserializeAttachment() as Attachment | null;
+        return who ? [who.name] : [];
+      });
   }
 
   #root() {
@@ -171,11 +195,11 @@ export class Cell extends DurableObject<Env> {
     }
   }
 
-  /** Sends to sockets that said hello; a socket still closing must not end the watch. */
-  #broadcast(m: CellMessage) {
+  /** Sends to sockets that said hello, except `except`; a socket still closing must not end the watch. */
+  #broadcast(m: CellMessage, except?: WebSocket) {
     const data = JSON.stringify(m);
     for (const ws of this.ctx.getWebSockets()) {
-      if (!ws.deserializeAttachment()) continue;
+      if (ws === except || !ws.deserializeAttachment()) continue;
       try {
         ws.send(data);
       } catch {}
