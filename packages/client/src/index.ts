@@ -46,12 +46,17 @@ export default function (pi: ExtensionAPI) {
       const join = (url: string) => {
         const parsed = parseCellUrl(url);
         if (!parsed.ok) return fail("join", parsed.error);
+        const cell = new URL(parsed.value);
         current?.close();
         ctx.ui.setStatus(RUN_STATUS, undefined);
         current = connect({
           wsUrl: parsed.value,
           name: user,
-          onState: (s) => ctx.ui.setStatus("durable", `cell: ${s}`),
+          onState: (s) =>
+            ctx.ui.setStatus(
+              "durable",
+              `durable: ${s} · ${cell.pathname.slice(-8)} · ${user}`,
+            ),
           onError: (message) => ctx.ui.notify(message, "warning"),
           onMessage: createHandler({
             append: (entry) => pi.appendEntry(ENTRY_TYPE, entry),
@@ -59,6 +64,10 @@ export default function (pi: ExtensionAPI) {
             setRun: (text) => ctx.ui.setStatus(RUN_STATUS, text),
           }),
         });
+        ctx.ui.notify(
+          `Joined as ${user}. Invite: /durable join ${url}`,
+          "info",
+        );
       };
 
       if (sub === "join") {
@@ -91,7 +100,6 @@ export default function (pi: ExtensionAPI) {
           base === DEFAULT_CELL_URL
             ? created.value
             : `${base}/cell/${created.value}`;
-        ctx.ui.notify(`Join with: /durable join ${invite}`, "info");
         return join(invite);
       }
       ctx.ui.notify(
