@@ -92,7 +92,7 @@ function resolvePath(cwd: string, path: string): string {
  * `ExecutionEnv` that forwards to the Server over HTTP, so pi-durable's built-in tools run against the Server's files.
  * Implements what `read`, `write`, `edit` and `bash` reach; every other method fails with `not_supported`.
  * shortcut: `exec` is buffered (no live output) and ignores `env`, `inheritEnv`, `spill` and `window`; upgrade with
- * streaming exec in step 9.
+ * streaming exec when long commands need live output.
  */
 export class HttpExecutionEnv implements ExecutionEnv {
   readonly id: string;

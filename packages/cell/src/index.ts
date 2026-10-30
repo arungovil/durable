@@ -148,7 +148,7 @@ export class Cell extends DurableObject<Env> {
    * A repeated `requestId` returns the original submission (pi-durable dedupes).
    */
   async #prompt(name: string, msg: Extract<ClientMessage, { type: "prompt" }>) {
-    // TODO(step 6): test the requestId dedupe through the Cell.
+    // TODO: test the requestId dedupe through the Cell, once the Durable Object test setup exists.
     // Armed first, as pi-durable requires for any call that can start work.
     await this.#arm({ ...this.#harness.wake(), active: true });
     const root = await this.#root();

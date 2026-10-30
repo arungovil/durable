@@ -28,7 +28,7 @@ WORKSPACE=/path/to/scratch-workspace TOKEN=secret pnpm dev:server
 pnpm dev:cell        # celld dev, http://127.0.0.1:9876
 ```
 
-Until the client exists (step 5), drive the Cell with any WebSocket client at `ws://127.0.0.1:9876/cell/<name>`: send `{"type":"hello","name":"u1"}`, then `{"type":"prompt","text":"...","requestId":"r1"}`. The reply is a `history` message holding the transcript after the run (temporary; step 7 streams events).
+Use the pi client (`README.md`), or any WebSocket client: `POST /new` on `http://127.0.0.1:9876` returns `{"id":"<uuid>"}`; connect to `ws://127.0.0.1:9876/cell/<id>`, send `{"type":"hello","name":"u1"}`, then `{"type":"prompt","text":"...","requestId":"r1"}`. You get `welcome` and `history` first, then `event` messages as the run happens (`docs/PROTOCOL.md`).
 
 ## Tests
 
