@@ -17,6 +17,10 @@ import { PROMPT_KIND, toHistory } from "./history.ts";
 import { parseClientMessage } from "./message.ts";
 
 const context = BACKGROUND_CONTEXT;
+
+// The model only sees "name: text" per prompt, so say what the prefix means.
+const INSTRUCTIONS =
+  "Several people share this session. Every user message starts with the speaker's name and a colon, e.g. `ann: text`. Treat different names as different people, address them by name, and keep track of who asked for what.";
 const HEARTBEAT_MS = 60_000;
 
 interface Env {
@@ -129,6 +133,7 @@ export class Cell extends DurableObject<Env> {
   #root() {
     return this.#harness.root(context, {
       agent: {
+        instructions: INSTRUCTIONS,
         model: {
           provider: "deepseek",
           modelId: this.env.MODEL ?? "deepseek-flash",
