@@ -1,6 +1,6 @@
 # durable
 
-Multiplayer programming with [pi](https://github.com/earendil-works/pi). Several people share one agent session, and the agent works on one shared codebase.
+Pair programming with [pi](https://github.com/earendil-works/pi). Several people share one agent session, prompt it together, and watch it work on one shared codebase.
 
 > In active development.
 
