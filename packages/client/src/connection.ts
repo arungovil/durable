@@ -1,5 +1,5 @@
 import type { CellMessage, ClientMessage } from "@durable/protocol";
-import ReconnectingWebSocket from "partysocket/ws";
+import { ReconnectingSocket } from "./reconnect.ts";
 
 export type ConnectionState = "connecting" | "connected" | "reconnecting";
 
@@ -20,14 +20,14 @@ export interface Connection {
 
 /**
  * Keeps one socket to a Cell open and says hello on every (re)connect.
- * `ws` is a parameter so tests can pass a fake; reconnect backoff is partysocket's.
+ * `ws` is a parameter so tests can pass a fake; reconnect backoff lives in `ReconnectingSocket`.
  */
 export function connect(
   opts: ConnectionOptions,
   ws: Pick<
-    ReconnectingWebSocket,
+    ReconnectingSocket,
     "addEventListener" | "send" | "close"
-  > = new ReconnectingWebSocket(opts.wsUrl),
+  > = new ReconnectingSocket(opts.wsUrl),
 ): Connection {
   let closed = false;
   let opened = false;
@@ -56,7 +56,9 @@ export function connect(
   });
   ws.addEventListener("message", (e) => {
     try {
-      opts.onMessage(JSON.parse(String(e.data)) as CellMessage);
+      opts.onMessage(
+        JSON.parse(String((e as MessageEvent).data)) as CellMessage,
+      );
     } catch {
       // a malformed frame must not drop the connection
     }
