@@ -14,6 +14,7 @@
     "../src/create.ts",
     "../src/input.ts",
     "../src/messages.ts",
+    "../src/reconnect.ts",
     "../src/render.ts",
     "../src/url.ts"
   ],

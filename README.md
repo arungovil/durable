@@ -42,7 +42,7 @@ Start the Server and the Cell (`docs/CELL.md`), then in pi, with the client exte
 - On join you get the history so far. While joined, text you type goes to the shared agent instead of pi's local one; slash commands still run locally. The model reads each prompt as `name: text`.
 - Everyone sees the run as it happens: prompts, replies and tool results. Prompts sent during a run are queued by the Cell. There is no notice for that yet.
 - You see `In session: ann, bob` when you join a session that has people in it, and `bob joined` / `bob left` afterwards. These are notices, not part of the shared history.
-- The footer shows `durable: <connecting|connected|reconnecting> · <last 8 chars of the id> · <name>`. The client reconnects with backoff (partysocket defaults: 1 to 5s at first, growing to 10s) and says hello again each time.
+- The footer shows `durable: <connecting|connected|reconnecting> · <last 8 chars of the id> · <name>`. The client reconnects with backoff (1s, doubling up to 10s) and says hello again each time.
 
 | Variable           | Where  | Meaning                                                                                           |
 | ------------------ | ------ | ------------------------------------------------------------------------------------------------- |

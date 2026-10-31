@@ -44,10 +44,6 @@ importers:
         version: 5.20261028.1
 
   packages/client:
-    dependencies:
-      partysocket:
-        specifier: 1.3.0
-        version: 1.3.0
     devDependencies:
       '@durable/protocol':
         specifier: workspace:*
@@ -687,9 +683,6 @@ packages:
   estree-walker@3.0.3:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
 
-  event-target-polyfill@0.0.4:
-    resolution: {integrity: sha512-Gs6RLjzlLRdT8X9ZipJdIZI/Y6/HhRLyq9RdDlCsnpxr/+Nn6bU2EFGuC94GjxqhM+Nmij2Vcq98yoHrU8uNFQ==}
-
   expect-type@1.4.0:
     resolution: {integrity: sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==}
     engines: {node: '>=12.0.0'}
@@ -942,14 +935,6 @@ packages:
 
   partial-json@0.1.7:
     resolution: {integrity: sha512-Njv/59hHaokb/hRUjce3Hdv12wd60MtM9Z5Olmn+nehe0QDAsRtRbJPvJ0Z91TusF0SuZRIvnM+S4l6EIP8leA==}
-
-  partysocket@1.3.0:
-    resolution: {integrity: sha512-1zToNyolZFK/7nuAw/K2bZrNzFqaZyRoCEkS+9vG6WSC5ikrN6qWRe96q6ImU51uptz2r+dAwSkwhJVdQi4LiA==}
-    peerDependencies:
-      react: '>=17'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   path-key@3.1.1:
     resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
@@ -1802,8 +1787,6 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.9
 
-  event-target-polyfill@0.0.4: {}
-
   expect-type@1.4.0: {}
 
   extend@3.0.2: {}
@@ -2012,10 +1995,6 @@ snapshots:
       retry: 0.13.1
 
   partial-json@0.1.7: {}
-
-  partysocket@1.3.0:
-    dependencies:
-      event-target-polyfill: 0.0.4
 
   path-key@3.1.1: {}
 
