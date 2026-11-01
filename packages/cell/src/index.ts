@@ -232,9 +232,11 @@ export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const { pathname } = new URL(req.url);
     if (pathname === "/new" && req.method === "POST") {
-      return Response.json({
-        id: crypto.randomUUID(),
-      } satisfies NewCellResponse);
+      // Browser clients call this cross-origin; the id is not secret.
+      return Response.json(
+        { id: crypto.randomUUID() } satisfies NewCellResponse,
+        { headers: { "Access-Control-Allow-Origin": "*" } },
+      );
     }
     if (!CELL_PATH.test(pathname) || req.headers.get("Upgrade") !== "websocket")
       return new Response("not found", { status: 404 });
