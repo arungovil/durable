@@ -66,9 +66,13 @@ it("reports errors and clears the status", () => {
 
 it("announces who is here, who joined and who left", () => {
   const { handle, notes } = setup();
-  handle({ type: "welcome", participants: ["ann"] });
-  handle({ type: "welcome", participants: ["ann", "bob"] });
+  handle({ type: "welcome", name: "ann", participants: ["ann"] });
+  handle({ type: "welcome", name: "ann", participants: ["ann", "bob"] });
   handle({ type: "joined", name: "cy" });
   handle({ type: "left", name: "bob" });
-  expect(notes).toEqual(["In session: ann, bob", "cy joined", "bob left"]);
+  expect(notes).toEqual([
+    "In session: ann, bob (you: ann)",
+    "cy joined",
+    "bob left",
+  ]);
 });

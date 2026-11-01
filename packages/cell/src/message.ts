@@ -2,6 +2,21 @@ import { type ClientMessage, NAME, type Result } from "@durable/protocol";
 import Type from "typebox";
 import Value from "typebox/value";
 
+/**
+ * What the model reads for a prompt: `[name]: text`. Names cannot contain brackets, and every
+ * later line of the text is indented, so only the Cell can put `[name]: ` at the start of a line.
+ */
+export const toModelPrompt = (name: string, text: string) =>
+  `[${name}]: ${text.replace(/\r\n|\r|\n/g, "\n    ")}`;
+
+/** `name` if free, else `name2`, `name3`, ...; the base is cut so the result still fits `LIMITS.name`. */
+export function uniqueName(name: string, taken: readonly string[]): string {
+  let out = name;
+  for (let n = 2; taken.includes(out); n++)
+    out = `${[...name].slice(0, LIMITS.name - String(n).length).join("")}${n}`;
+  return out;
+}
+
 /** Limits on what a client may send; sizes count UTF-16 units. */
 export const LIMITS = {
   // shortcut: counts string length, not bytes, so a message can be up to 3x larger on the wire; upgrade if memory matters

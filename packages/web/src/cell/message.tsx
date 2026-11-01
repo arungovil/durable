@@ -36,12 +36,11 @@ export const Message = memo(function Message({
 }: {
   entry: HistoryEntry;
 }) {
-  const { message, author, args } = entry;
+  const { message, author, text: typed, args } = entry;
   switch (message.role) {
     case "user": {
       const text = textOf(message.content);
-      // Prompts read "<author>: <text>"; the author is the label.
-      const body = author ? text.replace(`${author}: `, "") : text;
+      const body = typed ?? text;
       return (
         <Stack gap={2}>
           <Text size="sm" fw={600}>

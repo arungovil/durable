@@ -49,7 +49,7 @@ export async function runLine(ctx: Context, line: string): Promise<boolean> {
     const who = given || name;
     if (!who) fail(`Enter your name to continue: ${command}`);
     else if (!NAME.test(who))
-      fail("Your name must be 1-32 characters, with no spaces or colons.");
+      fail("Your name must be 1-32 characters, with no spaces or brackets.");
     else return who;
   };
   switch (cmd.name) {
