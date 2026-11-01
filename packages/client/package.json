@@ -13,5 +13,11 @@
   },
   "dependencies": {
     "partysocket": "1.3.0"
+  },
+  "exports": {
+    "./connection": "./src/connection.ts",
+    "./create": "./src/create.ts",
+    "./messages": "./src/messages.ts",
+    "./url": "./src/url.ts"
   }
 }
