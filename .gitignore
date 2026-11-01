@@ -7,3 +7,4 @@ dist/
 .env.local
 docs/PLAN.md
 AGENTS.md
+notes.md

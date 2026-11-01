@@ -1,0 +1,13 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDir": "../..",
+    "types": ["node"]
+  },
+  "include": ["*.ts", "../src/commands.ts", "../src/runner.ts"],
+  "references": [{ "path": "../../protocol" }, { "path": "../../client" }]
+}

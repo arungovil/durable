@@ -11,6 +11,7 @@
     "format": "biome check --write .",
     "dev:cell": "pnpm --filter @durable/cell dev",
     "dev:server": "pnpm --filter @durable/server dev",
+    "dev:web": "pnpm --filter @durable/web dev",
     "test": "vitest run"
   },
   "devDependencies": {
