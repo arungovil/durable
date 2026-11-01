@@ -7,7 +7,7 @@ import { ChatInput } from "./cell/chat-input.tsx";
 import { Help } from "./cell/help.tsx";
 import { MessageList } from "./cell/message-list.tsx";
 import { useCell } from "./hooks/use-cell.ts";
-import { createRunner } from "./runner.ts";
+import { runLine } from "./runner.ts";
 import { toast } from "./toast.ts";
 
 const PLACEHOLDER = {
@@ -34,14 +34,14 @@ export function App() {
   const wsUrl = ws?.ok ? ws.value : undefined;
   const cell = useCell(wsUrl, name);
 
-  const run = createRunner({
+  const ctx = {
     name,
     cellId: wsUrl ? cellId : "",
     setName,
     setCellId,
     send: cell.send,
     notify: toast,
-  });
+  };
 
   useEffect(() => {
     if (cell.error) toast({ text: cell.error, level: "error" });
@@ -56,7 +56,10 @@ export function App() {
         participants={cell.participants}
       />
       {wsUrl ? <MessageList entries={cell.entries} run={cell.run} /> : <Help />}
-      <ChatInput onSubmit={run} placeholder={PLACEHOLDER[cell.state]} />
+      <ChatInput
+        onSubmit={(line) => runLine(ctx, line)}
+        placeholder={PLACEHOLDER[cell.state]}
+      />
     </Flex>
   );
 }

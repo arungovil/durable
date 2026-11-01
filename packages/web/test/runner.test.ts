@@ -8,7 +8,7 @@ vi.mock("@durable/client/create", () => ({
 }));
 
 import { matchCommands, parseCommand } from "../src/commands.ts";
-import { createRunner, type Notice } from "../src/runner.ts";
+import { type Notice, runLine } from "../src/runner.ts";
 
 const ID = "3f2b8c1e-5d4a-4b7e-9c10-1a2b3c4d5e6f";
 
@@ -16,7 +16,7 @@ function setup(init: { name?: string; cellId?: string; connected?: boolean }) {
   const state = { name: init.name ?? "", cellId: init.cellId ?? "" };
   const notices: Notice[] = [];
   const send = vi.fn(() => init.connected ?? true);
-  const run = createRunner({
+  const ctx: Parameters<typeof runLine>[0] = {
     ...state,
     setName: (n) => {
       state.name = n;
@@ -25,8 +25,9 @@ function setup(init: { name?: string; cellId?: string; connected?: boolean }) {
       state.cellId = id;
     },
     send,
-    notify: (n) => notices.push(n),
-  });
+    notify: (n: Notice) => notices.push(n),
+  };
+  const run = (line: string) => runLine(ctx, line);
   return { state, notices, send, run };
 }
 
@@ -54,7 +55,7 @@ describe("matchCommands", () => {
   });
 });
 
-describe("createRunner", () => {
+describe("runLine", () => {
   it("needs a name for /create and /join when none is remembered", async () => {
     const { run, state, notices } = setup({});
     expect(await run(`/join ${ID}`)).toBe(false);

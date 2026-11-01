@@ -29,9 +29,12 @@ export function CellHeader({
   state,
   participants,
 }: {
+  /** Cell id; empty outside a cell. */
   id: string;
+  /** This user's name; shown alone until `participants` arrives. */
   name: string;
   state: Status;
+  /** Connected names, including this user; empty before the welcome. */
   participants: string[];
 }) {
   const label = LABEL[state];

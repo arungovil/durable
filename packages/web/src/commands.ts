@@ -36,9 +36,6 @@ export const USAGE = Object.fromEntries(
   COMMANDS.map((c) => [c.name, usage(c)]),
 ) as Record<CommandName, string>;
 
-// Mirrors the Cell's name rule (packages/cell/src/message.ts).
-export const NAME = /^[^\p{C}\p{Z}:]{1,32}$/u;
-
 /** "/join abc" gives `{ name: "join", arg: "abc" }`; undefined if not a command. */
 export function parseCommand(
   text: string,
