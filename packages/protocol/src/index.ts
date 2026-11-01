@@ -2,6 +2,9 @@ import type { Message } from "@earendil-works/pi-ai";
 
 // Wire types shared by all three layers. Client <-> Cell is WebSocket; Cell -> Server is HTTP.
 
+/** A participant name: 1-32 characters, no whitespace, control characters or ":" (which would fake another sender in the "name: text" prompt format). */
+export const NAME = /^[^\p{C}\p{Z}:]{1,32}$/u;
+
 /** Client -> Cell. */
 export type ClientMessage =
   | { type: "hello"; name: string }

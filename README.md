@@ -12,6 +12,7 @@ pi client  --WebSocket-->  Cell (celld Durable Object + pi-durable)  --HTTP-->  
 
 - **client**: a pi extension that joins a shared session.
 - **cell**: one Durable Object per session. It runs the agent loop and stores the conversation.
+- **web**: a browser client for people without pi. It joins a session, shows the run and sends prompts (`packages/web`).
 - **server**: holds the codebase and runs the agent's file and shell tools.
 
 ## Development
@@ -23,13 +24,26 @@ pnpm install --ignore-scripts
 pnpm check
 pnpm dev:cell
 pnpm dev:server
+pnpm dev:web
 ```
 
-celld dev listens on `http://127.0.0.1:9876`. Setup for each process: `docs/CELL.md`, `docs/SERVER.md`.
+celld dev listens on `http://127.0.0.1:9876`; the web client runs on Vite's dev server (the URL `pnpm dev:web` prints). Setup for each process: `docs/CELL.md`, `docs/SERVER.md`.
 
 ## Usage
 
-Start the Server and the Cell (`docs/CELL.md`), then in pi, with the client extension loaded:
+Start the Server and the Cell (`docs/CELL.md`).
+
+**Web:** run `pnpm dev:web` and open the page. Type `/` in the chat box for the commands:
+
+```
+/create [your name]            # makes a session; the id is shown in the header (Copy id)
+/join <id|url> [your name]     # joins an existing session
+/leave                         # leave the session
+```
+
+Any other text goes to the shared agent. Your name and session are kept in the browser, so a reload rejoins. `/join` only reaches the default Cell. There is no production build or hosting yet.
+
+**pi:** with the client extension loaded:
 
 ```
 /durable create [base-url] [name]   # makes a session, prints the join command and joins

@@ -1,4 +1,4 @@
-import type { ClientMessage, Result } from "@durable/protocol";
+import { type ClientMessage, NAME, type Result } from "@durable/protocol";
 import Type from "typebox";
 import Value from "typebox/value";
 
@@ -19,11 +19,10 @@ const FRAMES = {
   hello: Type.Object(
     {
       type: Type.Literal("hello"),
-      // No whitespace, control characters or ":", which would let a name fake another sender in the "name: text" prompt format.
       name: Type.String({
         minLength: 1,
         maxLength: LIMITS.name,
-        pattern: "^[^\\p{C}\\p{Z}:]+$",
+        pattern: NAME.source,
       }),
     },
     STRICT,
