@@ -66,8 +66,8 @@ describe("runLine", () => {
 
   it("rejects a bad name and changes nothing", async () => {
     const { run, state } = setup({});
-    expect(await run("/create a:b")).toBe(false);
-    expect(await run(`/join ${ID} a:b`)).toBe(false);
+    expect(await run("/create a[b")).toBe(false);
+    expect(await run(`/join ${ID} a[b`)).toBe(false);
     expect(await run("/create two words")).toBe(false);
     expect(state).toEqual({ name: "", cellId: "" });
   });

@@ -2,8 +2,8 @@ import type { Message } from "@earendil-works/pi-ai";
 
 // Wire types shared by all three layers. Client <-> Cell is WebSocket; Cell -> Server is HTTP.
 
-/** A participant name: 1-32 characters, no whitespace, control characters or ":" (which would fake another sender in the "name: text" prompt format). */
-export const NAME = /^[^\p{C}\p{Z}:]{1,32}$/u;
+/** A participant name: 1-32 characters, no whitespace, control characters or brackets (which would fake a sender in the "[name]: text" prompt format). */
+export const NAME = /^[^\p{C}\p{Z}[\]]{1,32}$/u;
 
 /** Client -> Cell. */
 export type ClientMessage =
@@ -20,7 +20,10 @@ export type TranscriptMessage = Extract<
 export interface HistoryEntry {
   id: string;
   message: TranscriptMessage;
+  /** User prompts only: who sent it. */
   author?: string;
+  /** User prompts only: the text as typed, without the `author: ` prefix the model reads. */
+  text?: string;
   /** Tool results only: arguments of the call it answers, absent if that call is unknown. */
   args?: Record<string, unknown>;
 }
@@ -43,7 +46,12 @@ export type CellEvent =
 
 /** Cell -> Client. */
 export type CellMessage =
-  | { type: "welcome"; participants: string[] }
+  | {
+      type: "welcome";
+      /** The name this socket got: the `hello` name, or `name2`, `name3`, ... if taken. */
+      name: string;
+      participants: string[];
+    }
   | { type: "history"; entries: HistoryEntry[] }
   | { type: "event"; event: CellEvent }
   | { type: "joined" | "left"; name: string }

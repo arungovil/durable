@@ -27,7 +27,10 @@ export function createHandler(sink: Sink): (m: CellMessage) => void {
         return sink.notify(m.message, "error");
       case "welcome":
         if (m.participants.length < 2) return;
-        return sink.notify(`In session: ${m.participants.join(", ")}`, "info");
+        return sink.notify(
+          `In session: ${m.participants.join(", ")} (you: ${m.name})`,
+          "info",
+        );
       case "joined":
       case "left":
         return sink.notify(`${m.name} ${m.type}`, "info");

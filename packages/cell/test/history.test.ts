@@ -28,7 +28,7 @@ it("keeps the pi message, the prompt author, and a result's call arguments", () 
     entry("3", [result]),
   ]);
   expect(out).toEqual([
-    { id: "1", message: prompt, author: "ann" },
+    { id: "1", message: prompt, author: "ann", text: "hi" },
     { id: "2", message: assistant },
     { id: "3", message: result, args: { path: "a" } },
   ]);

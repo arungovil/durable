@@ -23,8 +23,11 @@ export function toHistoryEntry(
     const args = calls.get(message.toolCallId);
     if (args) entry.args = args;
   } else if (e.kind === PROMPT_KIND) {
-    const author = (e.data as { author?: unknown } | undefined)?.author;
-    if (typeof author === "string") entry.author = author;
+    const data = e.data as { author?: unknown; text?: unknown } | undefined;
+    if (typeof data?.author === "string" && typeof data.text === "string") {
+      entry.author = data.author;
+      entry.text = data.text;
+    }
   }
   return entry;
 }

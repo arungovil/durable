@@ -89,7 +89,7 @@ it("reports an outage once, and says whether it ever connected", () => {
 
 it("passes messages on and ignores malformed frames", () => {
   const { ws, messages } = setup();
-  const welcome = { type: "welcome", participants: [] };
+  const welcome = { type: "welcome", name: "ann", participants: [] };
   ws.dispatchEvent(
     new MessageEvent("message", { data: JSON.stringify(welcome) }),
   );

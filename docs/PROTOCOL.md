@@ -6,23 +6,23 @@ Types live in `packages/protocol/src/index.ts`; this file is the human summary.
 
 `POST /new` on the Cell base URL creates a session and answers `{"id":"<uuid>"}` (`NewCellResponse`), with `Access-Control-Allow-Origin: *` so browser clients can call it. The WebSocket is at `/cell/<id>`; any other path, or an id that is not a lowercase v4 UUID, is 404. The unguessable id makes the join URL (`<base>/cell/<id>`) the invite, until the Cell has its own auth. Clients accept `http(s)` and `ws(s)` join URLs, or a bare id, which joins on the default Cell (`http://127.0.0.1:9876` until there is a hosted one).
 
-Participant names follow `NAME` in `@durable/protocol` (1-32 characters, no whitespace, control characters or `:`), checked by the Cell and the web client alike.
+Participant names follow `NAME` in `@durable/protocol` (1-32 characters, no whitespace, control characters or `[` `]`), checked by the Cell and the web client alike.
 
 Two clients speak this protocol: the pi extension (`packages/client`) and the browser app (`packages/web`, which reuses the client's connection and message code). The browser calls `POST /new` cross-origin, hence the header above; the WebSocket needs no CORS handling.
 
 On `hello` the Cell answers `welcome` (every name now connected, including the new one), then `history`, and tells the other sockets `joined`. A reconnect gets the full history again; clients skip entry ids they have shown.
 
-`left` goes out when a name's last socket closes. Two sockets under one name count as one participant, so two users with the same name show once.
+Names are unique per Cell: if the `hello` name is taken by a connected socket, the Cell appends the first free number (`arun`, `arun2`, `arun3`, cutting the base to stay within 32 characters) and tells the client in `welcome.name`. Every socket is one participant; `joined` and `left` go out per socket.
 
-| Direction      | Message           | Example                                                                                                                           |
-| -------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| client -> cell | `hello`           | `{"type":"hello","name":"u1"}`                                                                                                    |
-| client -> cell | `prompt`          | `{"type":"prompt","text":"fix the bug","requestId":"r1"}`                                                                         |
-| cell -> client | `welcome`         | `{"type":"welcome","participants":["u1"]}`                                                                                        |
-| cell -> client | `history`         | `{"type":"history","entries":[{"id":"7","message":{"role":"user","content":"ann: hi"},"author":"ann"}]}` (see Transcript entries) |
-| cell -> client | `event`           | `{"type":"event","event":{"type":"run_start"}}` (see Live events)                                                                 |
-| cell -> client | `joined` / `left` | `{"type":"joined","name":"u2"}`                                                                                                   |
-| cell -> client | `error`           | `{"type":"error","message":"unknown message type"}`                                                                               |
+| Direction      | Message           | Example                                                                                                                             |
+| -------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| client -> cell | `hello`           | `{"type":"hello","name":"u1"}`                                                                                                      |
+| client -> cell | `prompt`          | `{"type":"prompt","text":"fix the bug","requestId":"r1"}`                                                                           |
+| cell -> client | `welcome`         | `{"type":"welcome","name":"u1","participants":["u1"]}`                                                                              |
+| cell -> client | `history`         | `{"type":"history","entries":[{"id":"7","message":{"role":"user","content":"[ann]: hi"},"author":"ann"}]}` (see Transcript entries) |
+| cell -> client | `event`           | `{"type":"event","event":{"type":"run_start"}}` (see Live events)                                                                   |
+| cell -> client | `joined` / `left` | `{"type":"joined","name":"u2"}`                                                                                                     |
+| cell -> client | `error`           | `{"type":"error","message":"unknown message type"}`                                                                                 |
 
 ### Validation
 
@@ -39,9 +39,9 @@ Errors name the field, for example `invalid requestId: must not have fewer than 
 
 ### Prompts and senders
 
-The Cell takes the sender from the socket's `hello`, never from the prompt, so a client cannot speak as someone else. `name` may not contain `:` so it cannot fake a sender inside the text. Each prompt is submitted to pi-durable as an input:
+The Cell takes the sender from the socket's `hello`, never from the prompt, so a client cannot speak as someone else. Names cannot contain brackets and the Cell indents every later line of the text, so only the Cell can start a line with `[name]: `. Each prompt is submitted to pi-durable as an input:
 
-- `content` is `<name>: <text>`, which is what the model reads (`ann: can you check the build?`).
+- `content` is `[<name>]: <text>`, which is what the model reads (`[ann]: can you check the build?`); lines after the first are indented four spaces.
 - `entry` is `{"kind":"chat.message","data":{"author":"<name>","text":"<text>"}}`, so the transcript keeps the author as a field.
 - `requestId` is passed through. pi-durable returns the original submission for a repeated id, so a retry does not run twice.
 
@@ -50,8 +50,8 @@ The Cell takes the sender from the socket's `hello`, never from the prompt, so a
 A `history` entry (`HistoryEntry`) is one finished item of the conversation, in the form pi draws it:
 
 - `id`: stable across reconnects; clients skip ids they have shown.
-- `message`: a pi-ai message with role `user`, `assistant` or `toolResult`. An assistant message carries its text, thinking and tool calls; a tool result carries `content`, `isError` and `durationMs`. A prompt reads `<author>: <text>`.
-- `author`: who sent a user prompt; absent otherwise.
+- `message`: a pi-ai message with role `user`, `assistant` or `toolResult`. An assistant message carries its text, thinking and tool calls; a tool result carries `content`, `isError` and `durationMs`. A prompt reads `[<author>]: <text>`.
+- `author`, `text`: on a user prompt, who sent it and the text as typed (no `<author>: ` prefix); absent otherwise. Clients show `text` and never strip the prefix from `message`.
 - `args`: on a tool result, the arguments of the call it answers, so a client can draw the whole tool box. Absent if the call is not in the transcript.
 
 Bookkeeping entries (the system message that lists tools) are never sent.
