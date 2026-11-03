@@ -38,13 +38,16 @@ const textOf = (content: string | { type: string; text?: string }[]) =>
 
 /** Draws one entry with pi's own components. pi calls it again on expand, so keep it stateless. */
 export function renderEntry(
-  { message, args }: HistoryEntry,
+  { message, args, author, text }: HistoryEntry,
   expanded: boolean,
 ) {
   switch (message.role) {
     case "user":
+      // The model's `[name]: text` envelope is a Markdown link definition and would render empty.
       return new UserMessageComponent(
-        textOf(message.content),
+        author !== undefined && text !== undefined
+          ? `${author}: ${text}`
+          : textOf(message.content),
         getMarkdownTheme(),
         1,
       );
