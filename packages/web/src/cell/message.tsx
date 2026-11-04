@@ -1,6 +1,8 @@
 import type { HistoryEntry } from "@durable/protocol";
-import { Code, Paper, Spoiler, Stack, Text } from "@mantine/core";
+import { Code, Paper, Spoiler, Stack, Text, Typography } from "@mantine/core";
 import { memo } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { COLORS } from "../colors.ts";
 
 type Content = string | { type: string; text?: string }[];
@@ -54,12 +56,17 @@ export const Message = memo(function Message({
       // Thinking is hidden.
       const text = textOf(message.content);
       const failed = message.stopReason === "error";
+      console.log("R", text);
       return (
         <Stack gap={2}>
           <Text size="sm" fw={600} c={COLORS.muted}>
             assistant
           </Text>
-          {text && <Text style={PRE}>{text}</Text>}
+          {text && (
+            <Typography style={{ overflowWrap: "anywhere" }}>
+              <Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown>
+            </Typography>
+          )}
           {failed && (
             <Text c={COLORS.error} style={PRE}>
               {message.errorMessage ?? "the model failed"}
