@@ -1,6 +1,6 @@
-import { parseCellUrl } from "@durable/client/url";
 import { Flex } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
+import { parseCellUrl } from "@pairable/client/url";
 import { useEffect } from "react";
 import { CellHeader } from "./cell/cell-header.tsx";
 import { ChatInput } from "./cell/chat-input.tsx";
@@ -19,12 +19,12 @@ const PLACEHOLDER = {
 
 export function App() {
   const [name, setName] = useLocalStorage({
-    key: "durable.name",
+    key: "pairable.name",
     defaultValue: "",
     getInitialValueInEffect: false,
   });
   const [cellId, setCellId] = useLocalStorage({
-    key: "durable.cell",
+    key: "pairable.cell",
     defaultValue: "",
     getInitialValueInEffect: false,
   });

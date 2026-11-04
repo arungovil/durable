@@ -1,5 +1,5 @@
 {
-  "name": "durable",
+  "name": "pairable",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.30.1",
@@ -9,9 +9,9 @@
   "scripts": {
     "check": "biome check --error-on-warnings . && tsc -b",
     "format": "biome check --write .",
-    "dev:cell": "pnpm --filter @durable/cell dev",
-    "dev:server": "pnpm --filter @durable/server dev",
-    "dev:web": "pnpm --filter @durable/web dev",
+    "dev:cell": "pnpm --filter @pairable/cell dev",
+    "dev:server": "pnpm --filter @pairable/server dev",
+    "dev:web": "pnpm --filter @pairable/web dev",
     "test": "vitest run"
   },
   "devDependencies": {

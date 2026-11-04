@@ -1,7 +1,7 @@
-import type { CellMessage, HistoryEntry } from "@durable/protocol";
+import type { CellMessage, HistoryEntry } from "@pairable/protocol";
 
 /** `customType` of the transcript entries the extension adds; their data is a `HistoryEntry`. */
-export const ENTRY_TYPE = "durable-entry";
+export const ENTRY_TYPE = "pairable-entry";
 
 export interface Sink {
   append: (entry: HistoryEntry) => void;

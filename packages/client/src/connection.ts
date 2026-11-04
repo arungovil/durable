@@ -1,4 +1,4 @@
-import type { CellMessage, ClientMessage } from "@durable/protocol";
+import type { CellMessage, ClientMessage } from "@pairable/protocol";
 import ReconnectingWebSocket from "partysocket/ws";
 
 export type ConnectionState = "connecting" | "connected" | "reconnecting";

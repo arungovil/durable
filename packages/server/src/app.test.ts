@@ -8,7 +8,7 @@ import {
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { ServerApi, ServerResult } from "@durable/protocol";
+import type { ServerApi, ServerResult } from "@pairable/protocol";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApp } from "./app.ts";
 

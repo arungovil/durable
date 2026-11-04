@@ -1,9 +1,9 @@
-import type { ServerApi, ServerResult } from "@durable/protocol";
 import {
   BACKGROUND_CONTEXT,
   type Context,
   withAbortSignal,
 } from "@earendil-works/chord/context";
+import type { ServerApi, ServerResult } from "@pairable/protocol";
 
 export type Handler<K extends keyof ServerApi> = (
   req: ServerApi[K]["req"],

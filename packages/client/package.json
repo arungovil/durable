@@ -1,5 +1,5 @@
 {
-  "name": "@durable/client",
+  "name": "@pairable/client",
   "private": true,
   "type": "module",
   "pi": {
@@ -8,7 +8,7 @@
     ]
   },
   "devDependencies": {
-    "@durable/protocol": "workspace:*",
+    "@pairable/protocol": "workspace:*",
     "@earendil-works/pi-coding-agent": "^1.4.0"
   },
   "dependencies": {

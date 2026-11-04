@@ -1,6 +1,6 @@
-import { createCell } from "@durable/client/create";
-import { DEFAULT_CELL_URL, parseCellUrl } from "@durable/client/url";
-import { NAME } from "@durable/protocol";
+import { createCell } from "@pairable/client/create";
+import { DEFAULT_CELL_URL, parseCellUrl } from "@pairable/client/url";
+import { NAME } from "@pairable/protocol";
 import { parseCommand, USAGE } from "./commands.ts";
 
 /** Feedback shown as a toast. */

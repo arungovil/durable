@@ -1,5 +1,5 @@
 {
-  "name": "@durable/protocol",
+  "name": "@pairable/protocol",
   "private": true,
   "type": "module",
   "exports": {

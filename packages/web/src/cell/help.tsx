@@ -6,7 +6,7 @@ import { COMMANDS, usage } from "../commands.ts";
 export function Help() {
   return (
     <Stack maw={800} w="100%" mx="auto" p="md" flex={1} justify="center">
-      <Title order={3}>Welcome to Durable</Title>
+      <Title order={3}>Welcome to Pairable</Title>
       <Text c={COLORS.muted}>Type a command below to get started.</Text>
       {COMMANDS.map((c) => (
         <Text key={c.name}>

@@ -1,4 +1,4 @@
-# durable
+# pairable
 
 Pair programming with [pi](https://github.com/earendil-works/pi). Several people share one agent session, prompt it together, and watch it work on one shared codebase.
 
@@ -46,9 +46,9 @@ Any other text goes to the shared agent. Your name and session are kept in the b
 **pi:** with the client extension loaded:
 
 ```
-/durable create [base-url] [name]   # makes a session, prints the join command and joins
-/durable join <id|url> [name]       # joins an existing session
-/durable leave                      # disconnect from the session
+/pairable create [base-url] [name]   # makes a session, prints the join command and joins
+/pairable join <id|url> [name]       # joins an existing session
+/pairable leave                      # disconnect from the session
 ```
 
 - `create` prints `Join with` text containing just the id on the default Cell, or a full URL otherwise. `join` takes either. Whoever has the id can join, so treat it like a password until Cell auth exists.
@@ -56,11 +56,11 @@ Any other text goes to the shared agent. Your name and session are kept in the b
 - On join you get the history so far. While joined, text you type goes to the shared agent instead of pi's local one; slash commands still run locally. The model reads each prompt as `name: text`.
 - Everyone sees the run as it happens: prompts, replies and tool results. Prompts sent during a run are queued by the Cell. There is no notice for that yet.
 - You see `In session: ann, bob` when you join a session that has people in it, and `bob joined` / `bob left` afterwards. These are notices, not part of the shared history.
-- The footer shows `durable: <connecting|connected|reconnecting> · <last 8 chars of the id> · <name>`. The client reconnects with backoff (partysocket defaults: 1 to 5s at first, growing to 10s) and says hello again each time.
+- The footer shows `pairable: <connecting|connected|reconnecting> · <last 8 chars of the id> · <name>`. The client reconnects with backoff (partysocket defaults: 1 to 5s at first, growing to 10s) and says hello again each time.
 
-| Variable           | Where  | Meaning                                                                                           |
-| ------------------ | ------ | ------------------------------------------------------------------------------------------------- |
-| `DURABLE_CELL_URL` | client | Cell base URL for `/durable create`. Default `http://127.0.0.1:9876`; an argument overrides both. |
+| Variable            | Where  | Meaning                                                                                            |
+| ------------------- | ------ | -------------------------------------------------------------------------------------------------- |
+| `PAIRABLE_CELL_URL` | client | Cell base URL for `/pairable create`. Default `http://127.0.0.1:9876`; an argument overrides both. |
 
 ## Next steps
 

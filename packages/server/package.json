@@ -1,12 +1,12 @@
 {
-  "name": "@durable/server",
+  "name": "@pairable/server",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "node --env-file-if-exists=.env src/index.ts"
   },
   "dependencies": {
-    "@durable/protocol": "workspace:*",
+    "@pairable/protocol": "workspace:*",
     "@earendil-works/chord": "1.4.0",
     "@earendil-works/pi-durable": "1.4.0"
   }

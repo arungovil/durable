@@ -1,4 +1,4 @@
-import { type ClientMessage, NAME, type Result } from "@durable/protocol";
+import { type ClientMessage, NAME, type Result } from "@pairable/protocol";
 import Type from "typebox";
 import Value from "typebox/value";
 

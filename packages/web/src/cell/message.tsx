@@ -1,5 +1,5 @@
-import type { HistoryEntry } from "@durable/protocol";
 import { Code, Paper, Spoiler, Stack, Text, Typography } from "@mantine/core";
+import type { HistoryEntry } from "@pairable/protocol";
 import { memo } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";

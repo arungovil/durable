@@ -1,5 +1,5 @@
-import type { ExecResponse } from "@durable/protocol";
 import type { NodeExecutionEnv } from "@earendil-works/pi-durable/env/node";
+import type { ExecResponse } from "@pairable/protocol";
 import { confine } from "../confine.ts";
 import { fromResult } from "../result.ts";
 import { ctxFor, type Handler } from "./handler.ts";

@@ -1,5 +1,5 @@
-import type { HistoryEntry } from "@durable/protocol";
 import { Box, Group, Loader, Text } from "@mantine/core";
+import type { HistoryEntry } from "@pairable/protocol";
 import { type ReactNode, useMemo } from "react";
 import { type ContextProp, Virtuoso } from "react-virtuoso";
 import { COLORS } from "../colors.ts";

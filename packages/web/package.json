@@ -1,5 +1,5 @@
 {
-  "name": "@durable/web",
+  "name": "@pairable/web",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,8 +7,8 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@durable/client": "workspace:*",
-    "@durable/protocol": "workspace:*",
+    "@pairable/client": "workspace:*",
+    "@pairable/protocol": "workspace:*",
     "@mantine/core": "9.7.4",
     "@mantine/hooks": "9.7.4",
     "@mantine/notifications": "9.7.4",

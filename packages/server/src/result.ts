@@ -1,5 +1,5 @@
-import type { ErrorCode, ServerError, ServerResult } from "@durable/protocol";
 import type { Result } from "@earendil-works/pi-durable/env";
+import type { ErrorCode, ServerError, ServerResult } from "@pairable/protocol";
 /** Builds an error result; `path` is left out of the error entirely when undefined, not set to `undefined`. */
 export const fail = (
   code: ErrorCode,

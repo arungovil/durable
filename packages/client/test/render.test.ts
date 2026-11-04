@@ -1,5 +1,5 @@
-import type { HistoryEntry } from "@durable/protocol";
 import { initTheme } from "@earendil-works/pi-coding-agent";
+import type { HistoryEntry } from "@pairable/protocol";
 import { beforeAll, expect, it } from "vitest";
 import { renderEntry } from "../src/render.ts";
 

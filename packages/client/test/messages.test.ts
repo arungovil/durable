@@ -1,4 +1,4 @@
-import type { CellMessage, HistoryEntry } from "@durable/protocol";
+import type { CellMessage, HistoryEntry } from "@pairable/protocol";
 import { expect, it } from "vitest";
 import { createHandler } from "../src/messages.ts";
 

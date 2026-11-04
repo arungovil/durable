@@ -1,5 +1,5 @@
 {
-  "name": "@durable/cell",
+  "name": "@pairable/cell",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +9,7 @@
     "@cloudflare/workers-types": "^5.20261028.1"
   },
   "dependencies": {
-    "@durable/protocol": "workspace:*",
+    "@pairable/protocol": "workspace:*",
     "@earendil-works/chord": "1.4.0",
     "@earendil-works/pi-ai": "1.4.0",
     "@earendil-works/pi-durable": "1.4.0",

@@ -1,7 +1,7 @@
 import { realpath } from "node:fs/promises";
 import { createServer, type IncomingMessage, type Server } from "node:http";
-import type { ExecRequest } from "@durable/protocol";
 import { NodeExecutionEnv } from "@earendil-works/pi-durable/env/node";
+import type { ExecRequest } from "@pairable/protocol";
 import { fail } from "./result.ts";
 import type { Handler } from "./routes/handler.ts";
 import { createRoutes } from "./routes/index.ts";

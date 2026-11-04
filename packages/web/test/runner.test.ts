@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@durable/client/create", () => ({
+vi.mock("@pairable/client/create", () => ({
   createCell: async () => ({
     ok: true,
     value: "3f2b8c1e-5d4a-4b7e-9c10-1a2b3c4d5e6f",

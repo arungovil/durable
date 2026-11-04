@@ -1,5 +1,5 @@
-import type { CellEvent } from "@durable/protocol";
 import type { AgentEvent } from "@earendil-works/pi-durable";
+import type { CellEvent } from "@pairable/protocol";
 import { toHistoryEntry } from "./history.ts";
 
 /** Tool call id -> arguments, so a result can carry the call it answers. */

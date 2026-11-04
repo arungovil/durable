@@ -1,6 +1,6 @@
-import { connect } from "@durable/client/connection";
-import { createHandler } from "@durable/client/messages";
-import type { CellMessage, HistoryEntry } from "@durable/protocol";
+import { connect } from "@pairable/client/connection";
+import { createHandler } from "@pairable/client/messages";
+import type { CellMessage, HistoryEntry } from "@pairable/protocol";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Status } from "../status.ts";
 

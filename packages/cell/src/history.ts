@@ -1,6 +1,6 @@
-import type { HistoryEntry, TranscriptMessage } from "@durable/protocol";
 import type { Message } from "@earendil-works/pi-ai";
 import type { EntryRecord } from "@earendil-works/pi-durable";
+import type { HistoryEntry, TranscriptMessage } from "@pairable/protocol";
 
 const isTranscript = (m: Message): m is TranscriptMessage =>
   m.role !== "system";

@@ -1,7 +1,7 @@
 import { realpath } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
-import type { ServerError } from "@durable/protocol";
 import type { Result } from "@earendil-works/pi-durable/env";
+import type { ServerError } from "@pairable/protocol";
 import { fail } from "./result.ts";
 
 /**

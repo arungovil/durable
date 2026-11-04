@@ -1,15 +1,15 @@
 import { DurableObject } from "cloudflare:workers";
-import {
-  CELL_PATH,
-  type CellMessage,
-  type ClientMessage,
-  type NewCellResponse,
-} from "@durable/protocol";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
 import { createModels } from "@earendil-works/pi-ai";
 import { deepseekProvider } from "@earendil-works/pi-ai/providers/deepseek";
 import { Harness, type Wake, watchEvents } from "@earendil-works/pi-durable";
 import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/storage/sqlite/cloudflare";
+import {
+  CELL_PATH,
+  type CellMessage,
+  type ClientMessage,
+  type NewCellResponse,
+} from "@pairable/protocol";
 
 import { type Calls, toCellEvents } from "./events.ts";
 import { harnessOptions } from "./harness.ts";

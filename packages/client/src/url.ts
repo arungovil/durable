@@ -1,4 +1,4 @@
-import { CELL_PATH, type Result } from "@durable/protocol";
+import { CELL_PATH, type Result } from "@pairable/protocol";
 
 // The local celld dev address; becomes the hosted Cell's URL once there is one.
 export const DEFAULT_CELL_URL = "http://127.0.0.1:9876";

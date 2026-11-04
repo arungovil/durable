@@ -2,7 +2,6 @@ import { mkdtemp, realpath, writeFile } from "node:fs/promises";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { CellEvent } from "@durable/protocol";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
 import { createModels } from "@earendil-works/pi-ai";
 import {
@@ -16,6 +15,7 @@ import {
   MemoryStorage,
   watchEvents,
 } from "@earendil-works/pi-durable";
+import type { CellEvent } from "@pairable/protocol";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { createApp } from "../../server/src/app.ts";
 import { type Calls, toCellEvents } from "../src/events.ts";

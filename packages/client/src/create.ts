@@ -1,4 +1,4 @@
-import type { NewCellResponse, Result } from "@durable/protocol";
+import type { NewCellResponse, Result } from "@pairable/protocol";
 
 const TIMEOUT_MS = 10_000;
 

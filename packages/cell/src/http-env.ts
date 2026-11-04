@@ -1,10 +1,3 @@
-import type {
-  ErrorCode,
-  ExecRequest,
-  ServerApi,
-  ServerError,
-  ServerResult,
-} from "@durable/protocol";
 import type { Context } from "@earendil-works/chord/context";
 import {
   type BinaryReader,
@@ -21,6 +14,13 @@ import {
   type ShellExecOptions,
   type ShellExecResult,
 } from "@earendil-works/pi-durable/env";
+import type {
+  ErrorCode,
+  ExecRequest,
+  ServerApi,
+  ServerError,
+  ServerResult,
+} from "@pairable/protocol";
 
 export interface HttpExecutionEnvOptions {
   /** Base URL of the Server, no trailing slash. Doubles as the file namespace `id`. */

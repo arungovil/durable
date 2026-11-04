@@ -51,7 +51,7 @@ export function CellHeader({
       wrap="nowrap"
     >
       <Group gap="xs" wrap="nowrap">
-        <Text fw={600}>Durable</Text>
+        <Text fw={600}>Pairable</Text>
         <Box
           w={8}
           h={8}

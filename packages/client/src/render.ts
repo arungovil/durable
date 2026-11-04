@@ -1,4 +1,3 @@
-import type { HistoryEntry } from "@durable/protocol";
 import {
   AssistantMessageComponent,
   createBashToolDefinition,
@@ -12,6 +11,7 @@ import {
   ToolExecutionComponent,
   UserMessageComponent,
 } from "@earendil-works/pi-coding-agent";
+import type { HistoryEntry } from "@pairable/protocol";
 
 /** pi's renderers for the tools the Cell runs, so a remote call looks like a local one. */
 const DEFINITIONS = {

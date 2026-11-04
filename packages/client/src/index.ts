@@ -1,6 +1,6 @@
 import { userInfo } from "node:os";
-import type { HistoryEntry } from "@durable/protocol";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import type { HistoryEntry } from "@pairable/protocol";
 import { type Connection, connect } from "./connection.ts";
 import { createCell } from "./create.ts";
 import { handleInput } from "./input.ts";
@@ -10,7 +10,7 @@ import { DEFAULT_CELL_URL, parseCellUrl } from "./url.ts";
 
 const SUBCOMMANDS = ["create", "join", "leave"];
 
-const RUN_STATUS = "durable-run";
+const RUN_STATUS = "pairable-run";
 
 export default function (pi: ExtensionAPI) {
   let current: Connection | undefined;
@@ -26,9 +26,9 @@ export default function (pi: ExtensionAPI) {
     ),
   );
 
-  pi.registerCommand("durable", {
+  pi.registerCommand("pairable", {
     description:
-      "Shared Cell: /durable create [base-url] | /durable join <id|url> [name] | /durable leave",
+      "Shared Cell: /pairable create [base-url] | /pairable join <id|url> [name] | /pairable leave",
     getArgumentCompletions: (prefix) => {
       if (prefix.includes(" ")) return null;
       const items = SUBCOMMANDS.filter((s) => s.startsWith(prefix)).map(
@@ -54,8 +54,8 @@ export default function (pi: ExtensionAPI) {
           name: user,
           onState: (s) =>
             ctx.ui.setStatus(
-              "durable",
-              `durable: ${s} · ${cell.pathname.slice(-8)} · ${user}`,
+              "pairable",
+              `pairable: ${s} · ${cell.pathname.slice(-8)} · ${user}`,
             ),
           onError: (message) => ctx.ui.notify(message, "warning"),
           onMessage: createHandler({
@@ -65,7 +65,7 @@ export default function (pi: ExtensionAPI) {
           }),
         });
         ctx.ui.notify(
-          `Joined as ${user}. Invite: /durable join ${url}`,
+          `Joined as ${user}. Invite: /pairable join ${url}`,
           "info",
         );
       };
@@ -74,7 +74,7 @@ export default function (pi: ExtensionAPI) {
         if (!arg)
           return fail(
             "join",
-            "pass the id or URL that /durable create printed",
+            "pass the id or URL that /pairable create printed",
           );
         return join(arg);
       }
@@ -83,14 +83,14 @@ export default function (pi: ExtensionAPI) {
           return ctx.ui.notify("leave: not in a session", "warning");
         current.close();
         current = undefined;
-        ctx.ui.setStatus("durable", undefined);
+        ctx.ui.setStatus("pairable", undefined);
         ctx.ui.setStatus(RUN_STATUS, undefined);
         return ctx.ui.notify("Left the session", "info");
       }
       if (sub === "create") {
         const base = (
           arg ||
-          process.env.DURABLE_CELL_URL ||
+          process.env.PAIRABLE_CELL_URL ||
           DEFAULT_CELL_URL
         ).replace(/\/$/, "");
         const created = await createCell(base);
@@ -103,7 +103,7 @@ export default function (pi: ExtensionAPI) {
         return join(invite);
       }
       ctx.ui.notify(
-        "usage: /durable create [base-url] | join <id|url> | leave",
+        "usage: /pairable create [base-url] | join <id|url> | leave",
         "info",
       );
     },

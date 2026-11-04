@@ -6,7 +6,7 @@ Types live in `packages/protocol/src/index.ts`; this file is the human summary.
 
 `POST /new` on the Cell base URL creates a session and answers `{"id":"<uuid>"}` (`NewCellResponse`), with `Access-Control-Allow-Origin: *` so browser clients can call it. The WebSocket is at `/cell/<id>`; any other path, or an id that is not a lowercase v4 UUID, is 404. The unguessable id makes the join URL (`<base>/cell/<id>`) the invite, until the Cell has its own auth. Clients accept `http(s)` and `ws(s)` join URLs, or a bare id, which joins on the default Cell (`http://127.0.0.1:9876` until there is a hosted one).
 
-Participant names follow `NAME` in `@durable/protocol` (1-32 characters, no whitespace, control characters or `[` `]`), checked by the Cell and the web client alike.
+Participant names follow `NAME` in `@pairable/protocol` (1-32 characters, no whitespace, control characters or `[` `]`), checked by the Cell and the web client alike.
 
 Two clients speak this protocol: the pi extension (`packages/client`) and the browser app (`packages/web`, which reuses the client's connection and message code). The browser calls `POST /new` cross-origin, hence the header above; the WebSocket needs no CORS handling.
 

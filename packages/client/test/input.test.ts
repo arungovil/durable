@@ -1,5 +1,5 @@
-import type { ClientMessage } from "@durable/protocol";
 import type { InputEvent } from "@earendil-works/pi-coding-agent";
+import type { ClientMessage } from "@pairable/protocol";
 import { expect, it } from "vitest";
 import { handleInput } from "../src/input.ts";
 
@@ -49,7 +49,7 @@ it("passes through outside a session, extension input and slash commands", () =>
   expect(handleInput(event({ source: "extension" }), conn, notify)).toEqual(
     pass,
   );
-  expect(handleInput(event({ text: "/durable leave" }), conn, notify)).toEqual(
+  expect(handleInput(event({ text: "/pairable leave" }), conn, notify)).toEqual(
     pass,
   );
   expect(sent).toEqual([]);
