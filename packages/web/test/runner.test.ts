@@ -83,7 +83,10 @@ describe("runLine", () => {
   it("uses the remembered name when none is given", async () => {
     const { run, state } = setup({ name: "ann" });
     expect(await run(`/join ${ID}`)).toBe(true);
-    expect(state).toEqual({ name: "ann", cellId: ID });
+    expect(state).toEqual({
+      name: "ann",
+      cellId: `ws://127.0.0.1:9876/cell/${ID}`,
+    });
   });
 
   it("keeps the current cell when a join is bad", async () => {

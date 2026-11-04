@@ -72,8 +72,8 @@ export async function runLine(ctx: Context, line: string): Promise<boolean> {
       const who = resolveName(given, USAGE.join);
       if (!who) return false;
       setName(who);
-      // shortcut: host dropped, only the default Cell is reachable; keep the host with the id for other Cells.
-      setCellId(new URL(r.value).pathname.slice("/cell/".length));
+      // The full URL, so a Cell on another host stays reachable.
+      setCellId(r.value);
       return ok();
     }
     case "leave":
